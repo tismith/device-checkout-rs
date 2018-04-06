@@ -18,10 +18,7 @@ quick_main!(run);
 // `errors` module. It is a typedef of the standard `Result` type
 // for which the error type is always our own `Error`.
 fn run() -> Result<()> {
-    use std::fs::File;
-
-    // This operation will fail
-    File::open("tretrete").chain_err(|| "unable to open tretrete file")?;
+    //DO STUFF
 
     Ok(())
 }
