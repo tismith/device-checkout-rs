@@ -7,20 +7,23 @@ extern crate error_chain;
 #[macro_use]
 extern crate log;
 //get logging from env, RUST_LOG=debug cargo run etc
+//there are many other loggers that work with log, e.g syslog
 extern crate env_logger;
-
-//application specific includes
-extern crate websocket;
 
 pub mod errors {
     // Create the Error, ErrorKind, ResultExt, and Result types
     error_chain!{}
+    //TODO add custom or mapped error types here
 }
 use errors::*;
 
-// Auto-generate the main. You may want to
-// set the `RUST_BACKTRACE` env variable to see a backtrace.
-quick_main!(run);
+fn main() {
+    if let Err(ref e) = run() {
+        use error_chain::ChainedError; // trait which holds `display_chain`
+        error!("{}", e.display_chain());
+        ::std::process::exit(1);
+    }
+}
 
 // Most functions will return the `Result` type, imported from the
 // `errors` module. It is a typedef of the standard `Result` type
