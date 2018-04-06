@@ -5,3 +5,6 @@ authors = ["Toby Smith <toby@tismith.id.au>"]
 
 [dependencies]
 error-chain = "0.11.0"
+log = "0.4.1"
+env_logger = "0.5.6"
+websocket = "0.20.2"
