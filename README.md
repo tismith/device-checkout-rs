@@ -4,3 +4,4 @@
 * log and stderrlog for configurable logging macros
 * clap for commandline argument processing
 * error_chain for error handling
+* assert_cli for integration testing
