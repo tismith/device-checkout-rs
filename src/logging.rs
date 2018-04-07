@@ -1,4 +1,3 @@
-
 ///This sets up logging, and takes the output from the commandline
 ///options
 pub fn configure_logger(config: &::clap::ArgMatches) {
@@ -24,4 +23,3 @@ pub fn configure_logger(config: &::clap::ArgMatches) {
         .init()
         .unwrap();
 }
-

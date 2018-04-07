@@ -14,7 +14,8 @@ mod integration {
         //test that help works contains a USAGE string
         assert_cli::Assert::main_binary()
             .with_args(&["-h"])
-            .stdout().contains("USAGE")
+            .stdout()
+            .contains("USAGE")
             .unwrap();
     }
 }
