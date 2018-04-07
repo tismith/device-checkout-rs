@@ -1,22 +1,22 @@
-use clap::{App, Arg, ArgMatches};
+use clap;
 
-pub fn parse_cmdline() -> ArgMatches<'static> {
-    App::new(crate_name!())
+pub fn parse_cmdline() -> clap::ArgMatches<'static> {
+    clap::App::new(crate_name!())
         .version(crate_version!())
         .author(crate_authors!())
         .arg(
-            Arg::with_name("verbosity")
+            clap::Arg::with_name("verbosity")
                 .short("v")
                 .multiple(true)
                 .help("Increase message verbosity"),
         )
         .arg(
-            Arg::with_name("quiet")
+            clap::Arg::with_name("quiet")
                 .short("q")
                 .help("Silence all output"),
         )
         .arg(
-            Arg::with_name("timestamp")
+            clap::Arg::with_name("timestamp")
                 .short("t")
                 .help("prepend log lines with a timestamp")
                 .takes_value(true)
