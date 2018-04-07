@@ -11,6 +11,7 @@ extern crate stderrlog;
 extern crate clap;
 
 mod cmdline;
+mod logging;
 
 pub mod errors {
     // Create the Error, ErrorKind, ResultExt, and Result types
@@ -21,37 +22,13 @@ use errors::*;
 
 fn main() {
     let config = cmdline::parse_cmdline();
-    configure_logger(&config);
+    logging::configure_logger(&config);
 
     if let Err(ref e) = run(&config) {
         use error_chain::ChainedError; // trait which holds `display_chain`
         error!("{}", e.display_chain());
         ::std::process::exit(1);
     }
-}
-
-fn configure_logger(config: &clap::ArgMatches) {
-    let verbose = config.occurrences_of("verbosity") as usize;
-    let quiet = config.is_present("quiet");
-    let ts = match config.value_of("timestamp") {
-        Some("ns") => stderrlog::Timestamp::Nanosecond,
-        Some("ms") => stderrlog::Timestamp::Microsecond,
-        Some("sec") => stderrlog::Timestamp::Second,
-        Some("none") | None => stderrlog::Timestamp::Off,
-        Some(_) => clap::Error {
-            message: "invalid value for 'timestamp'".into(),
-            kind: clap::ErrorKind::InvalidValue,
-            info: None,
-        }.exit(),
-    };
-
-    stderrlog::new()
-        .module(module_path!())
-        .quiet(quiet)
-        .verbosity(verbose)
-        .timestamp(ts)
-        .init()
-        .unwrap();
 }
 
 // Most functions will return the `Result` type, imported from the
