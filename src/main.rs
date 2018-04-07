@@ -10,7 +10,7 @@ extern crate stderrlog;
 #[macro_use]
 extern crate clap;
 
-use clap::{Arg, App};
+mod cmdline;
 
 pub mod errors {
     // Create the Error, ErrorKind, ResultExt, and Result types
@@ -20,23 +20,17 @@ pub mod errors {
 use errors::*;
 
 fn main() {
-    let config = App::new(crate_name!())
-        .version(crate_version!())
-		.author(crate_authors!())
-        .arg(Arg::with_name("verbosity")
-             .short("v")
-             .multiple(true)
-             .help("Increase message verbosity"))
-        .arg(Arg::with_name("quiet")
-             .short("q")
-             .help("Silence all output"))
-        .arg(Arg::with_name("timestamp")
-             .short("t")
-             .help("prepend log lines with a timestamp")
-             .takes_value(true)
-             .possible_values(&["none", "sec", "ms", "ns"]))
-        .get_matches();
+    let config = cmdline::parse_cmdline();
+    configure_logger(&config);
 
+    if let Err(ref e) = run(&config) {
+        use error_chain::ChainedError; // trait which holds `display_chain`
+        error!("{}", e.display_chain());
+        ::std::process::exit(1);
+    }
+}
+
+fn configure_logger(config: &clap::ArgMatches) {
     let verbose = config.occurrences_of("verbosity") as usize;
     let quiet = config.is_present("quiet");
     let ts = match config.value_of("timestamp") {
@@ -58,12 +52,6 @@ fn main() {
         .timestamp(ts)
         .init()
         .unwrap();
-
-    if let Err(ref e) = run(&config) {
-        use error_chain::ChainedError; // trait which holds `display_chain`
-        error!("{}", e.display_chain());
-        ::std::process::exit(1);
-    }
 }
 
 // Most functions will return the `Result` type, imported from the
