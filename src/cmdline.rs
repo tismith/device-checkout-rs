@@ -9,7 +9,7 @@ pub fn parse_cmdline() -> types::Settings {
             clap::Arg::with_name("verbosity")
                 .short("v")
                 .multiple(true)
-                .help("Increase message verbosity"),
+                .help("Increase message verbosity, maximum 4"),
         )
         .arg(
             clap::Arg::with_name("quiet")
@@ -26,6 +26,13 @@ pub fn parse_cmdline() -> types::Settings {
         .get_matches();
 
     let verbosity = matches.occurrences_of("verbosity") as usize;
+    if verbosity > 4 {
+        clap::Error {
+            message: "invalid number of 'v' flags".into(),
+            kind: clap::ErrorKind::InvalidValue,
+            info: None,
+        }.exit()
+    }
     let quiet = matches.is_present("quiet");
     let timestamp = match matches.value_of("timestamp") {
         Some("ns") => types::Timestamp::Nanosecond,
