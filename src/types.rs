@@ -5,6 +5,7 @@ pub use stderrlog::Timestamp as Timestamp;
 error_chain!{}
 //TODO add custom or mapped error types here
 
+#[derive(Debug)]
 pub struct Settings {
     pub verbosity: usize,
     pub quiet: bool,
