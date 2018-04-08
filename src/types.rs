@@ -1,5 +1,5 @@
 //reexport Timestamp, so other modules don't need to use stderrlog
-pub use stderrlog::Timestamp as Timestamp;
+pub use stderrlog::Timestamp;
 
 // Create the Error, ErrorKind, ResultExt, and Result types
 error_chain!{}

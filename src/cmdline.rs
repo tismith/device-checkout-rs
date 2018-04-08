@@ -25,9 +25,9 @@ pub fn parse_cmdline() -> types::Settings {
         )
         .get_matches();
 
-    let verbose = matches.occurrences_of("verbosity") as usize;
+    let verbosity = matches.occurrences_of("verbosity") as usize;
     let quiet = matches.is_present("quiet");
-    let ts = match matches.value_of("timestamp") {
+    let timestamp = match matches.value_of("timestamp") {
         Some("ns") => types::Timestamp::Nanosecond,
         Some("ms") => types::Timestamp::Microsecond,
         Some("sec") => types::Timestamp::Second,
@@ -40,9 +40,9 @@ pub fn parse_cmdline() -> types::Settings {
     };
 
     types::Settings {
-        verbosity: verbose,
-        quiet: quiet,
-        timestamp: ts,
-        .. Default::default()
+        verbosity,
+        quiet,
+        timestamp,
+        //.. Default::default()
     }
 }
