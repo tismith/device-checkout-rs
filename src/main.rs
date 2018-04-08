@@ -12,8 +12,8 @@ extern crate clap;
 
 mod cmdline;
 mod logging;
-pub mod errors;
-use errors::*;
+mod types;
+use types::*;
 
 fn main() {
     let config = cmdline::parse_cmdline();
@@ -29,7 +29,7 @@ fn main() {
 // Most functions will return the `Result` type, imported from the
 // `errors` module. It is a typedef of the standard `Result` type
 // for which the error type is always our own `Error`.
-fn run(_config: &clap::ArgMatches) -> Result<()> {
+fn run(_config: &Settings) -> Result<()> {
     trace!("Entry to top level run()");
     //DO STUFF
 
