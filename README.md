@@ -3,5 +3,8 @@
 ## We are using:
 * `log` and `stderrlog` for configurable logging macros
 * `clap` for commandline argument processing
-* `error_chain` for error handling
+* `error-chain` for error handling
 * `assert_cli` for integration testing
+
+## To do:
+* Look at `failure` as it stablizes as a replacement for `error-chain`
