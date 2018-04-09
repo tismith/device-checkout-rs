@@ -14,11 +14,13 @@ pub fn parse_cmdline() -> types::Settings {
         .arg(
             clap::Arg::with_name("quiet")
                 .short("q")
+                .long("quiet")
                 .help("Silence all output"),
         )
         .arg(
             clap::Arg::with_name("timestamp")
                 .short("t")
+                .long("timestamp")
                 .help("prepend log lines with a timestamp")
                 .takes_value(true)
                 .possible_values(&["none", "sec", "ms", "ns"]),
