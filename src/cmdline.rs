@@ -52,6 +52,6 @@ pub fn parse_cmdline() -> types::Settings {
         verbosity,
         quiet,
         timestamp,
-        //.. Default::default()
+        ..Default::default()
     }
 }

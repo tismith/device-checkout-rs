@@ -16,7 +16,8 @@ mod types;
 use types::*;
 
 fn main() {
-    let config = cmdline::parse_cmdline();
+    let mut config = cmdline::parse_cmdline();
+    config.module_path = Some(module_path!().into());
     logging::configure_logger(&config);
 
     if let Err(ref e) = run(&config) {
