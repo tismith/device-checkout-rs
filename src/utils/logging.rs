@@ -1,5 +1,5 @@
 use stderrlog;
-use types;
+use utils::types;
 
 ///This sets up logging, and takes the output from the commandline
 ///options

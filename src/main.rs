@@ -10,27 +10,24 @@ extern crate stderrlog;
 #[macro_use]
 extern crate clap;
 
-mod cmdline;
-mod logging;
-mod types;
-use types::*;
+mod utils;
 
 fn main() {
-    let mut config = cmdline::parse_cmdline();
+    let mut config = utils::cmdline::parse_cmdline();
     config.module_path = Some(module_path!().into());
-    logging::configure_logger(&config);
+    utils::logging::configure_logger(&config);
 
     if let Err(ref e) = run(&config) {
         use error_chain::ChainedError; // trait which holds `display_chain`
         error!("{}", e.display_chain());
-        ::std::process::exit(1);
+        std::process::exit(1);
     }
 }
 
 // Most functions will return the `Result` type, imported from the
 // `types` module. It is a typedef of the standard `Result` type
 // for which the error type is always our own `Error`.
-fn run(_config: &Settings) -> Result<()> {
+fn run(_config: &utils::types::Settings) -> utils::types::Result<()> {
     trace!("Entry to top level run()");
     //DO STUFF
 

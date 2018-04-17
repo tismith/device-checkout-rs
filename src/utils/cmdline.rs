@@ -1,5 +1,5 @@
 use clap;
-use types;
+use utils::types;
 
 pub fn parse_cmdline() -> types::Settings {
     let matches = clap::App::new(crate_name!())
