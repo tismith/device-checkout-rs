@@ -2,7 +2,7 @@
 #![recursion_limit = "1024"]
 
 //standard includes
-#[macro_use]
+//#[macro_use]
 extern crate failure;
 #[macro_use]
 extern crate log;
@@ -34,8 +34,10 @@ fn run(_config: &utils::types::Settings) -> Result<(), failure::Error> {
     trace!("Entry to top level run()");
     //DO STUFF
 
-    use failure::ResultExt;
-    std::fs::File::open("foo.txt").context("Failed to open foo.txt")?;
+//--------------------------------------------------
+//     use failure::ResultExt;
+//     std::fs::File::open("foo.txt").context("Failed to open foo.txt")?;
+//-------------------------------------------------- 
 
     Ok(())
 }
