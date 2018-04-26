@@ -17,27 +17,16 @@ extern crate serde_json;
 #[macro_use]
 extern crate diesel;
 
-use diesel::prelude::*;
-use failure::ResultExt;
-
+mod database;
 mod models;
 mod routes;
 mod schema;
 mod utils;
 
-pub fn establish_connection(
-    config: &utils::types::Settings,
-) -> Result<diesel::sqlite::SqliteConnection, failure::Error> {
-    trace!("establish_connection()");
-    let database_url = &config.database_url;
-    Ok(diesel::sqlite::SqliteConnection::establish(database_url)
-        .with_context(|_| format!("Error connecting to {}", database_url))?)
-}
-
 fn run(config: &utils::types::Settings) -> Result<(), failure::Error> {
     trace!("run()");
 
-    let _ = establish_connection(config);
+    let _ = database::establish_connection(config)?;
 
     rocket::ignite()
         .mount("/", routes![routes::index, routes::api_get_device])
