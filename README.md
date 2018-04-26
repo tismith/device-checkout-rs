@@ -6,20 +6,19 @@ Still a work in progress.
 
 
 Since this is using `rocket` for the web framework, we need to use rust nightly. So to set the compiler stream for this project, do:
-```
+```sh
 rustup override set nightly
 ```
 
 To build the database do:
-```
+```sh
 cargo install diesel_cli --no-default-features --features sqlite
 export DATABASE_URL=devices.db
 diesel setup
-diesel migration run
 ```
 
 To run the application do:
-```
+```sh
 cargo run
 ```
 
@@ -30,3 +29,6 @@ cargo run
 * `clap` for commandline argument processing
 * `failure` for error handling
 * `assert_cli` for integration testing
+
+## To do:
+* Look at `diesel_migrations` to build the migrations into the binary
