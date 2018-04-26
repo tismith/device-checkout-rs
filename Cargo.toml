@@ -4,3 +4,10 @@ version = "0.1.0"
 authors = ["Toby Smith <toby@tismith.id.au>"]
 
 [dependencies]
+failure = "0.1.1"
+log = "0.4.1"
+stderrlog = "0.3.0"
+clap = "2.31.2"
+
+[dev-dependencies]
+assert_cli = "0.5"
