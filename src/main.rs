@@ -26,7 +26,7 @@ fn index() -> &'static str {
 #[derive(Debug, Serialize, Deserialize)]
 enum ReservationStatus {
     Available,
-    Reserved
+    Reserved,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -43,14 +43,14 @@ struct Device {
     comments: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(default)]
-    reservation_status: Option<ReservationStatus>
+    reservation_status: Option<ReservationStatus>,
 }
 
 #[get("/api/device/<name>")]
 fn api_get_device(name: String) -> rocket_contrib::Json<Device> {
     trace!("api_get_device()");
     rocket_contrib::Json(Device {
-        device_name:name,
+        device_name: name,
         device_url: None,
         device_owner: None,
         comments: None,
@@ -61,7 +61,9 @@ fn api_get_device(name: String) -> rocket_contrib::Json<Device> {
 fn run(_config: &utils::types::Settings) -> Result<(), failure::Error> {
     trace!("Entry to top level run()");
 
-    rocket::ignite().mount("/", routes![index, api_get_device]).launch();
+    rocket::ignite()
+        .mount("/", routes![index, api_get_device])
+        .launch();
 
     Ok(())
 }
