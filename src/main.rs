@@ -23,13 +23,20 @@ fn index() -> &'static str {
     "Hello, world!"
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash, Serialize, Deserialize)]
 enum ReservationStatus {
     Available,
     Reserved,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+impl Default for ReservationStatus {
+    fn default() -> Self {
+        ReservationStatus::Available
+    }
+}
+
+//deliberately not making this Copy
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Default, Clone, Hash, Serialize, Deserialize)]
 struct Device {
     device_name: String,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -51,10 +58,8 @@ fn api_get_device(name: String) -> rocket_contrib::Json<Device> {
     trace!("api_get_device()");
     rocket_contrib::Json(Device {
         device_name: name,
-        device_url: None,
-        device_owner: None,
-        comments: None,
-        reservation_status: Some(ReservationStatus::Available),
+        reservation_status: Some(Default::default()),
+        .. Default::default()
     })
 }
 
