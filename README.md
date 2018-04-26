@@ -1,4 +1,4 @@
-Reimplementation of [https://github.com/tismith/deviceCheckout](deviceCheckout) in rust.
+Reimplementation of (https://github.com/tismith/deviceCheckout)[deviceCheckout] in rust.
 
 Still a work in progress.
 
