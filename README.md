@@ -1,3 +1,5 @@
+# device-checkout-rs [![Build Status](https://travis-ci.org/tismith/device-checkout-rs.svg?branch=master)](https://travis-ci.org/tismith/device-checkout-rs)
+
 Reimplementation of https://github.com/tismith/deviceCheckout in rust.
 
 Still a work in progress.
