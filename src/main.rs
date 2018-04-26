@@ -1,9 +1,5 @@
-// `error_chain!` can recurse deeply
-#![recursion_limit = "1024"]
-
 //standard includes
-//#[macro_use]
-extern crate failure;
+extern crate failure; //this crate has macros, but this current program doesn't make use of them
 #[macro_use]
 extern crate log;
 extern crate stderrlog;
@@ -34,10 +30,10 @@ fn run(_config: &utils::types::Settings) -> Result<(), failure::Error> {
     trace!("Entry to top level run()");
     //DO STUFF
 
-//--------------------------------------------------
-//     use failure::ResultExt;
-//     std::fs::File::open("foo.txt").context("Failed to open foo.txt")?;
-//-------------------------------------------------- 
+    //--------------------------------------------------
+    //     use failure::ResultExt;
+    //     std::fs::File::open("foo.txt").context("Failed to open foo.txt")?;
+    //--------------------------------------------------
 
     Ok(())
 }
