@@ -1,3 +1,6 @@
+#![feature(plugin)]
+#![plugin(rocket_codegen)]
+
 //standard includes
 extern crate failure; //this crate has macros, but this current program doesn't make use of them
 #[macro_use]
@@ -5,8 +8,23 @@ extern crate log;
 extern crate stderrlog;
 #[macro_use]
 extern crate clap;
+extern crate rocket;
 
 mod utils;
+
+#[get("/")]
+fn index() -> &'static str {
+    trace!("default route called");
+    "Hello, world!"
+}
+
+fn run(_config: &utils::types::Settings) -> Result<(), failure::Error> {
+    trace!("Entry to top level run()");
+
+    rocket::ignite().mount("/", routes![index]).launch();
+
+    Ok(())
+}
 
 fn main() {
     let mut config = utils::cmdline::parse_cmdline();
@@ -24,16 +42,4 @@ fn main() {
         }
         std::process::exit(1);
     }
-}
-
-fn run(_config: &utils::types::Settings) -> Result<(), failure::Error> {
-    trace!("Entry to top level run()");
-    //DO STUFF
-
-    //--------------------------------------------------
-    //     use failure::ResultExt;
-    //     std::fs::File::open("foo.txt").context("Failed to open foo.txt")?;
-    //--------------------------------------------------
-
-    Ok(())
 }

@@ -8,6 +8,8 @@ failure = "0.1.1"
 log = "0.4.1"
 stderrlog = "0.3.0"
 clap = "2.31.2"
+rocket = "0.3.8"
+rocket_codegen = "0.3.8"
 
 [dev-dependencies]
 assert_cli = "0.5"
