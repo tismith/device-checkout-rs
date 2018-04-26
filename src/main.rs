@@ -20,15 +20,18 @@ extern crate diesel;
 use diesel::prelude::*;
 use failure::ResultExt;
 
+mod schema;
+mod models;
+mod utils;
+
 pub fn establish_connection(
     config: &utils::types::Settings,
 ) -> Result<diesel::sqlite::SqliteConnection, failure::Error> {
+    trace!("establish_connection()");
     let database_url = &config.database_url;
     Ok(diesel::sqlite::SqliteConnection::establish(database_url)
         .with_context(|_| format!("Error connecting to {}", database_url))?)
 }
-
-mod utils;
 
 #[get("/")]
 fn index() -> &'static str {
@@ -36,41 +39,10 @@ fn index() -> &'static str {
     "Hello, world!"
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash, Serialize, Deserialize)]
-enum ReservationStatus {
-    Available,
-    Reserved,
-}
-
-impl Default for ReservationStatus {
-    fn default() -> Self {
-        ReservationStatus::Available
-    }
-}
-
-//deliberately not making this Copy
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Default, Clone, Hash, Queryable, Serialize, Deserialize)]
-struct Device {
-    device_id: usize,
-    device_name: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[serde(default)]
-    device_url: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[serde(default)]
-    device_owner: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[serde(default)]
-    comments: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[serde(default)]
-    reservation_status: Option<ReservationStatus>,
-}
-
 #[get("/api/device/<name>")]
-fn api_get_device(name: String) -> rocket_contrib::Json<Device> {
+fn api_get_device(name: String) -> rocket_contrib::Json<models::Device> {
     trace!("api_get_device()");
-    rocket_contrib::Json(Device {
+    rocket_contrib::Json(models::Device {
         device_name: name,
         reservation_status: Some(Default::default()),
         ..Default::default()
@@ -78,7 +50,7 @@ fn api_get_device(name: String) -> rocket_contrib::Json<Device> {
 }
 
 fn run(config: &utils::types::Settings) -> Result<(), failure::Error> {
-    trace!("Entry to top level run()");
+    trace!("run()");
 
     let _ = establish_connection(config);
 
