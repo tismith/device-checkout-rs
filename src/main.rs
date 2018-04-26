@@ -20,8 +20,9 @@ extern crate diesel;
 use diesel::prelude::*;
 use failure::ResultExt;
 
-mod schema;
 mod models;
+mod routes;
+mod schema;
 mod utils;
 
 pub fn establish_connection(
@@ -33,29 +34,13 @@ pub fn establish_connection(
         .with_context(|_| format!("Error connecting to {}", database_url))?)
 }
 
-#[get("/")]
-fn index() -> &'static str {
-    trace!("index()");
-    "Hello, world!"
-}
-
-#[get("/api/device/<name>")]
-fn api_get_device(name: String) -> rocket_contrib::Json<models::Device> {
-    trace!("api_get_device()");
-    rocket_contrib::Json(models::Device {
-        device_name: name,
-        reservation_status: Some(Default::default()),
-        ..Default::default()
-    })
-}
-
 fn run(config: &utils::types::Settings) -> Result<(), failure::Error> {
     trace!("run()");
 
     let _ = establish_connection(config);
 
     rocket::ignite()
-        .mount("/", routes![index, api_get_device])
+        .mount("/", routes![routes::index, routes::api_get_device])
         .launch();
 
     Ok(())
