@@ -14,7 +14,7 @@ impl Default for ReservationStatus {
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Default, Clone, Hash, Queryable, Serialize,
          Deserialize)]
 pub struct Device {
-    pub device_id: usize,
+    pub id: usize,
     pub device_name: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(default)]
