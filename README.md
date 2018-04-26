@@ -25,6 +25,7 @@ cargo run
 ## We are using:
 * `rocket` for the web framework
 * `diesel` as the database abstraction and orm
+* `serde` for json serialization/deserialization
 * `log` and `stderrlog` for configurable logging macros
 * `clap` for commandline argument processing
 * `failure` for error handling

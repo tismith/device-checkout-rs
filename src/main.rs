@@ -1,8 +1,8 @@
 #![feature(plugin)]
 #![plugin(rocket_codegen)]
 
-//standard includes
-extern crate failure; //this crate has macros, but this current program doesn't make use of them
+//#[macro_use] //this crate has macros, currently unused
+extern crate failure;
 #[macro_use]
 extern crate log;
 extern crate stderrlog;
@@ -14,6 +14,19 @@ extern crate rocket_contrib;
 extern crate serde_derive;
 extern crate serde;
 extern crate serde_json;
+#[macro_use]
+extern crate diesel;
+
+use diesel::prelude::*;
+use failure::ResultExt;
+
+pub fn establish_connection(
+    config: &utils::types::Settings,
+) -> Result<diesel::sqlite::SqliteConnection, failure::Error> {
+    let database_url = &config.database_url;
+    Ok(diesel::sqlite::SqliteConnection::establish(database_url)
+        .with_context(|_| format!("Error connecting to {}", database_url))?)
+}
 
 mod utils;
 
@@ -36,8 +49,9 @@ impl Default for ReservationStatus {
 }
 
 //deliberately not making this Copy
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Default, Clone, Hash, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Default, Clone, Hash, Queryable, Serialize, Deserialize)]
 struct Device {
+    device_id: usize,
     device_name: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(default)]
@@ -59,12 +73,14 @@ fn api_get_device(name: String) -> rocket_contrib::Json<Device> {
     rocket_contrib::Json(Device {
         device_name: name,
         reservation_status: Some(Default::default()),
-        .. Default::default()
+        ..Default::default()
     })
 }
 
-fn run(_config: &utils::types::Settings) -> Result<(), failure::Error> {
+fn run(config: &utils::types::Settings) -> Result<(), failure::Error> {
     trace!("Entry to top level run()");
+
+    let _ = establish_connection(config);
 
     rocket::ignite()
         .mount("/", routes![index, api_get_device])

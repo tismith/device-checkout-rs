@@ -7,6 +7,7 @@ pub struct Settings {
     pub quiet: bool,
     pub timestamp: Timestamp,
     pub module_path: Option<String>,
+    pub database_url: String,
 }
 
 impl Default for Settings {
@@ -16,6 +17,7 @@ impl Default for Settings {
             quiet: false,
             timestamp: Timestamp::Off,
             module_path: None,
+            database_url: "devices.db".to_string(),
         }
     }
 }
