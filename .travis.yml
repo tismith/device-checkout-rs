@@ -3,3 +3,4 @@ rust:
         - nightly
 matrix:
         fast_finish: true
+cache: cargo
