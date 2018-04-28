@@ -26,12 +26,11 @@ mod routes;
 mod schema;
 mod utils;
 
-fn run(config: &utils::types::Settings) -> Result<(), failure::Error> {
+fn run(config: utils::types::Settings) -> Result<(), failure::Error> {
     trace!("run()");
 
-    let _ = database::establish_connection(config)?;
-
     rocket::ignite()
+        .manage(config)
         .mount("/", routes![routes::index, routes::api_get_device, routes::api_get_devices])
         .launch();
 
@@ -43,7 +42,7 @@ fn main() {
     config.module_path = Some(module_path!().into());
     utils::logging::configure_logger(&config);
 
-    if let Err(ref e) = run(&config) {
+    if let Err(ref e) = run(config) {
         use failure::Fail;
         let mut fail: &Fail = e.cause();
         error!("{}", fail);
