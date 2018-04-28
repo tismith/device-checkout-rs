@@ -21,7 +21,7 @@ pub fn api_get_device(name: String) -> rocket_contrib::Json<models::Device> {
 }
 
 #[get("/api/devices")]
-pub fn api_get_devices() -> Result<rocket_contrib::Json<Vec<models::Device>>, rocket::response::status::BadRequest<Option<()>>> {
+pub fn api_get_devices() -> Result<rocket_contrib::Json<Vec<models::Device>>, rocket::response::status::BadRequest<()>> {
     trace!("api_get_devices()");
     //hack at the moment to get the databae path into this function
     let devices = database::get_devices(&utils::types::Settings{..Default::default()});
@@ -30,7 +30,7 @@ pub fn api_get_devices() -> Result<rocket_contrib::Json<Vec<models::Device>>, ro
             Ok(rocket_contrib::Json(devices))
         },
         Err(_error) => {
-            Err(rocket::response::status::BadRequest::<Option<()>>(None))
+            Err(rocket::response::status::BadRequest(None))
         }
     }
 }
