@@ -12,7 +12,7 @@ pub fn api_get_device(name: String) -> rocket_contrib::Json<models::Device> {
     trace!("api_get_device()");
     rocket_contrib::Json(models::Device {
         device_name: name,
-        reservation_status: Some(Default::default()),
+        reservation_status: Default::default(),
         ..Default::default()
     })
 }

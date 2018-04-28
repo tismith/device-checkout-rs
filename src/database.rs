@@ -1,6 +1,7 @@
 use diesel;
 use failure;
 use utils;
+use models;
 
 use diesel::prelude::*;
 use failure::ResultExt;
@@ -13,4 +14,18 @@ pub fn establish_connection(
     let database_url = &config.database_url;
     Ok(diesel::sqlite::SqliteConnection::establish(database_url)
         .with_context(|_| format!("Error connecting to {}", database_url))?)
+}
+
+pub fn get_devices(
+    config: &utils::types::Settings,
+) -> Result<Vec<models::Device>, failure::Error> {
+    use self::diesel::prelude::*;
+    use schema::devices::dsl::*;
+
+    let connection = establish_connection(config)?;
+    let results = devices.load::<models::Device>(&connection)
+        .with_context(|_| format!("Error loading devices"))?;
+
+    //trace!("displaying {} posts", devices.len());
+    Ok(results)
 }

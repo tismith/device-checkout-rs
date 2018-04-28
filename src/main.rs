@@ -16,6 +16,9 @@ extern crate serde;
 extern crate serde_json;
 #[macro_use]
 extern crate diesel;
+#[macro_use]
+extern crate diesel_derive_enum;
+extern crate chrono;
 
 mod database;
 mod models;
