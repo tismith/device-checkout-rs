@@ -26,6 +26,5 @@ pub fn get_devices(
     let results = devices.load::<models::Device>(&connection)
         .with_context(|_| format!("Error loading devices"))?;
 
-    //trace!("displaying {} posts", devices.len());
     Ok(results)
 }

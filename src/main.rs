@@ -32,7 +32,7 @@ fn run(config: &utils::types::Settings) -> Result<(), failure::Error> {
     let _ = database::establish_connection(config)?;
 
     rocket::ignite()
-        .mount("/", routes![routes::index, routes::api_get_device])
+        .mount("/", routes![routes::index, routes::api_get_device, routes::api_get_devices])
         .launch();
 
     Ok(())
