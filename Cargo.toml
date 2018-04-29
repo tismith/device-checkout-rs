@@ -2,6 +2,7 @@
 name = "device-checkout-rs"
 version = "0.1.0"
 authors = ["Toby Smith <toby@tismith.id.au>"]
+license = "MIT"
 
 [dependencies]
 failure = "0.1.1"
