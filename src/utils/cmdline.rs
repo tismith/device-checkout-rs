@@ -33,6 +33,14 @@ pub fn parse_cmdline() -> types::Settings {
                 .default_value("8000")
                 .takes_value(true),
         )
+        .arg(
+            clap::Arg::with_name("database")
+                .short("d")
+                .long("database")
+                .help("path to database file")
+                .default_value("devices.db")
+                .takes_value(true),
+        )
         .get_matches();
 
     let verbosity = matches.occurrences_of("verbosity") as usize;
@@ -57,12 +65,20 @@ pub fn parse_cmdline() -> types::Settings {
     };
 
     let port = value_t!(matches.value_of("port"), u16).unwrap_or_else(|e| e.exit());
+    let database = matches.value_of("database").unwrap_or_else(|| {
+        clap::Error {
+            message: "invalid value for 'database'".into(),
+            kind: clap::ErrorKind::InvalidValue,
+            info: None,
+        }.exit()
+    });
 
     types::Settings {
         verbosity,
         quiet,
         timestamp,
         port,
+        database_url: database.to_string(),
         ..Default::default()
     }
 }
