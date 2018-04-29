@@ -56,22 +56,7 @@ pub fn parse_cmdline() -> types::Settings {
         }.exit(),
     };
 
-    let parsed_port = match matches.value_of("port") {
-        Some(raw_port) => raw_port.parse(),
-        _ => clap::Error {
-            message: "invalid value for 'port'".into(),
-            kind: clap::ErrorKind::InvalidValue,
-            info: None,
-        }.exit(),
-    };
-    let port = match parsed_port {
-        Ok(port) => port,
-        _ => clap::Error {
-            message: "invalid value for 'port'".into(),
-            kind: clap::ErrorKind::InvalidValue,
-            info: None,
-        }.exit(),
-    };
+    let port = value_t!(matches.value_of("port"), u16).unwrap_or_else(|e| e.exit());
 
     types::Settings {
         verbosity,
