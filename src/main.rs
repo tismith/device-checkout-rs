@@ -29,9 +29,20 @@ mod utils;
 fn run(config: utils::types::Settings) -> Result<(), failure::Error> {
     trace!("run()");
 
-    rocket::ignite()
+    let rocket_config = rocket::config::Config::build(rocket::config::Environment::Production)
+        .port(config.port)
+        .finalize()?;
+
+    rocket::custom(rocket_config, false)
         .manage(config)
-        .mount("/", routes![routes::index, routes::api_get_device, routes::api_get_devices])
+        .mount(
+            "/",
+            routes![
+                routes::index,
+                routes::api_get_device,
+                routes::api_get_devices
+            ],
+        )
         .launch();
 
     Ok(())

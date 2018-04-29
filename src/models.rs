@@ -1,6 +1,7 @@
 use chrono;
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash, Serialize, Deserialize, DbEnum)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash, Serialize, Deserialize,
+         DbEnum)]
 pub enum ReservationStatus {
     Available,
     Reserved,

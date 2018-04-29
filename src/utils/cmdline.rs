@@ -25,6 +25,14 @@ pub fn parse_cmdline() -> types::Settings {
                 .takes_value(true)
                 .possible_values(&["none", "sec", "ms", "ns"]),
         )
+        .arg(
+            clap::Arg::with_name("port")
+                .short("p")
+                .long("port")
+                .help("tcp port number to listen on")
+                .default_value("8000")
+                .takes_value(true),
+        )
         .get_matches();
 
     let verbosity = matches.occurrences_of("verbosity") as usize;
@@ -47,6 +55,7 @@ pub fn parse_cmdline() -> types::Settings {
             info: None,
         }.exit(),
     };
+    //TODO parse port number
 
     types::Settings {
         verbosity,

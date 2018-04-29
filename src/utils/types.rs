@@ -8,6 +8,7 @@ pub struct Settings {
     pub timestamp: Timestamp,
     pub module_path: Option<String>,
     pub database_url: String,
+    pub port: u16,
 }
 
 impl Default for Settings {
@@ -18,6 +19,7 @@ impl Default for Settings {
             timestamp: Timestamp::Off,
             module_path: None,
             database_url: "devices.db".to_string(),
+            port: 8000,
         }
     }
 }

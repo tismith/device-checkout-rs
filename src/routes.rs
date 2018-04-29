@@ -1,7 +1,8 @@
+use database;
+use failure;
+use models;
 use rocket;
 use rocket_contrib;
-use models;
-use database;
 use utils;
 
 #[get("/")]
@@ -21,16 +22,10 @@ pub fn api_get_device(name: String) -> rocket_contrib::Json<models::Device> {
 }
 
 #[get("/api/devices")]
-pub fn api_get_devices(config : rocket::State<utils::types::Settings>) -> Result<rocket_contrib::Json<Vec<models::Device>>, rocket::response::Failure> {
+pub fn api_get_devices(
+    config: rocket::State<utils::types::Settings>,
+) -> Result<rocket_contrib::Json<Vec<models::Device>>, failure::Error> {
     trace!("api_get_devices()");
-    let devices = database::get_devices(&*config);
-    match devices {
-        Ok(devices) => {
-            Ok(rocket_contrib::Json(devices))
-        },
-        Err(_error) => {
-            Err(rocket::response::Failure(rocket::http::Status::BadRequest))
-        }
-    }
+    let devices = database::get_devices(&*config)?;
+    Ok(rocket_contrib::Json(devices))
 }
-

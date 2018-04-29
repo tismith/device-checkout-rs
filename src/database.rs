@@ -1,11 +1,10 @@
 use diesel;
 use failure;
-use utils;
 use models;
+use utils;
 
 use diesel::prelude::*;
 use failure::ResultExt;
-
 
 pub fn establish_connection(
     config: &utils::types::Settings,
@@ -16,14 +15,13 @@ pub fn establish_connection(
         .with_context(|_| format!("Error connecting to {}", database_url))?)
 }
 
-pub fn get_devices(
-    config: &utils::types::Settings,
-) -> Result<Vec<models::Device>, failure::Error> {
+pub fn get_devices(config: &utils::types::Settings) -> Result<Vec<models::Device>, failure::Error> {
     use self::diesel::prelude::*;
     use schema::devices::dsl::*;
 
     let connection = establish_connection(config)?;
-    let results = devices.load::<models::Device>(&connection)
+    let results = devices
+        .load::<models::Device>(&connection)
         .with_context(|_| format!("Error loading devices"))?;
 
     Ok(results)
