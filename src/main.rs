@@ -33,14 +33,16 @@ fn run(config: utils::types::Settings) -> Result<(), failure::Error> {
         .port(config.port)
         .finalize()?;
 
-    rocket::custom(rocket_config, false)
+    rocket::custom(rocket_config, true)
         .manage(config)
+        .attach(rocket_contrib::Template::fairing())
         .mount(
             "/",
             routes![
                 routes::index,
                 routes::api_get_device,
-                routes::api_get_devices
+                routes::api_get_devices,
+                routes::get_devices,
             ],
         )
         .launch();

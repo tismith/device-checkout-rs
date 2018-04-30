@@ -1,0 +1,34 @@
+<head>
+   <title>Device list</title>
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css">
+</head>
+<body>
+   <div class="container">
+      <h1>Devices</h1>
+      <table class="table table-bordered">
+         <thead class="thead-dark">
+            <tr>
+               <th>Device name</th>
+               <th>URL</th>
+               <th>Owner</th>
+               <th>Comments</th>
+               <th></th>
+            </tr>
+         </thead>
+         {{#each devices}}
+         <tr>
+            <form name="{{this.device_name}}" action="/devices" method="post">
+                <input type="hidden" name="device_name" value="{{this.device_name}}" class="form-control">
+                <input type="hidden" name="reservation_status" value="{{this.reservation_status}}" class="form-control">
+               <td>{{this.device_name}}</td>
+               <td><a href="{{this.device_url}}">{{this.device_url}}</a></td>
+	       <td><input type="text" name="device_owner" class="form-control" value="{{this.device_owner}}"></td>
+               <td><input type="text" name="comments" class="form-control" value="{{this.comments}}"></td>
+               <td><input type="submit" class="btn btn-danger" value="RETURN"></td>
+            </form>
+         </tr>
+	 {{/each}}
+      </table>
+      <a href="/editDevices">Edit Device List</a>
+   </div>
+</body>

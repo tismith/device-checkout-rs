@@ -4,6 +4,9 @@ version = "0.1.0"
 authors = ["Toby Smith <toby@tismith.id.au>"]
 license = "MIT"
 
+[profile.release]
+lto = true
+
 [dependencies]
 failure = "0.1.1"
 log = "0.4.1"
@@ -22,7 +25,7 @@ features = ["serde"]
 [dependencies.rocket_contrib]
 version = "0.3.8"
 default-features = false
-features = ["json"]
+features = ["json", "handlebars_templates"]
 
 [dependencies.diesel]
 version = "1.0.0"
