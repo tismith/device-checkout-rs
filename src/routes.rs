@@ -13,13 +13,11 @@ pub fn index() -> rocket::response::Redirect {
 }
 
 #[get("/api/devices/<name>")]
-pub fn api_get_device(name: String) -> rocket_contrib::Json<models::Device> {
+pub fn api_get_device(config: rocket::State<utils::types::Settings>, name: String) -> Result<rocket_contrib::Json<Option<models::Device>>, failure::Error> {
     trace!("api_get_device()");
-    rocket_contrib::Json(models::Device {
-        device_name: name,
-        reservation_status: Default::default(),
-        ..Default::default()
-    })
+    let results = database::get_device(&*config, &name)?;
+    //todo return a 404 if devices is a None
+    Ok(rocket_contrib::Json(results))
 }
 
 #[get("/api/devices")]
