@@ -27,7 +27,10 @@ pub fn get_devices(config: &utils::types::Settings) -> Result<Vec<models::Device
     Ok(results)
 }
 
-pub fn get_device(config: &utils::types::Settings, requested_name: &str) -> Result<Option<models::Device>, failure::Error> {
+pub fn get_device(
+    config: &utils::types::Settings,
+    requested_name: &str,
+) -> Result<Option<models::Device>, failure::Error> {
     use self::diesel::prelude::*;
     use schema::devices::dsl::*;
 
@@ -36,7 +39,8 @@ pub fn get_device(config: &utils::types::Settings, requested_name: &str) -> Resu
         .filter(device_name.eq(requested_name))
         .load::<models::Device>(&connection)
         .with_context(|_| format!("Error loading devices"))?
-        .into_iter().next();
+        .into_iter()
+        .next();
 
     Ok(result)
 }

@@ -13,11 +13,17 @@ pub fn index() -> rocket::response::Redirect {
 }
 
 #[get("/api/devices/<name>")]
-pub fn api_get_device(config: rocket::State<utils::types::Settings>, name: String) -> Result<rocket_contrib::Json<Option<models::Device>>, failure::Error> {
+pub fn api_get_device(
+    config: rocket::State<utils::types::Settings>,
+    name: String,
+) -> Result<rocket_contrib::Json<models::Device>, rocket::http::Status> {
     trace!("api_get_device()");
-    let results = database::get_device(&*config, &name)?;
-    //todo return a 404 if devices is a None
-    Ok(rocket_contrib::Json(results))
+    database::get_device(&*config, &name)
+        .map_err(|_| rocket::http::Status::InternalServerError)
+        .and_then(|devices| {
+            devices.ok_or(rocket::http::Status::NotFound)
+        }).map(rocket_contrib::Json)
+    //todo, I'm not getting a 404 out - always a 500
 }
 
 #[get("/api/devices")]
