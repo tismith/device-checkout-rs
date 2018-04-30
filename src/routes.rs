@@ -12,7 +12,7 @@ pub fn index() -> rocket::response::Redirect {
     rocket::response::Redirect::to("/devices")
 }
 
-#[get("/api/devices/<name>")]
+#[get("/devices/<name>")]
 pub fn api_get_device(
     config: rocket::State<utils::types::Settings>,
     name: String,
@@ -34,7 +34,7 @@ pub fn api_get_device(
         .map(rocket_contrib::Json)
 }
 
-#[get("/api/devices")]
+#[get("/devices")]
 pub fn api_get_devices(
     config: rocket::State<utils::types::Settings>,
 ) -> Result<rocket_contrib::Json<Vec<models::Device>>, failure::Error> {

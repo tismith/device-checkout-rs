@@ -36,14 +36,10 @@ fn run(config: utils::types::Settings) -> Result<(), failure::Error> {
     rocket::custom(rocket_config, true)
         .manage(config)
         .attach(rocket_contrib::Template::fairing())
+        .mount("/", routes![routes::index, routes::get_devices,])
         .mount(
-            "/",
-            routes![
-                routes::index,
-                routes::api_get_device,
-                routes::api_get_devices,
-                routes::get_devices,
-            ],
+            "/api/",
+            routes![routes::api_get_device, routes::api_get_devices,],
         )
         .launch();
 
