@@ -17,14 +17,14 @@
          </thead>
          {{#each devices}}
          <tr>
-            <form name="{{this.device_name}}" action="/devices" method="post">
-                <input type="hidden" name="device_name" value="{{this.device_name}}" class="form-control">
-                <input type="hidden" name="reservation_status" value="{{this.reservation_status}}" class="form-control">
-               <td>{{this.device_name}}</td>
-               <td><a href="{{this.device_url}}">{{this.device_url}}</a></td>
-	       <td><input type="text" name="device_owner" class="form-control" value="{{this.device_owner}}"></td>
-               <td><input type="text" name="comments" class="form-control" value="{{this.comments}}"></td>
-               <td><input type="submit" class="btn btn-danger" value="RETURN"></td>
+            <form name="{{this.device.device_name}}" action="/devices" method="post">
+                <input type="hidden" name="device_name" value="{{this.device.device_name}}" class="form-control">
+                <input type="hidden" name="reservation_status" value="{{this.device.reservation_status}}" class="form-control">
+               <td>{{this.device.device_name}}</td>
+               <td><a href="{{this.device.device_url}}">{{this.device.device_url}}</a></td>
+	       <td><input type="text" name="device_owner" class="form-control" value="{{this.device.device_owner}}"></td>
+               <td><input type="text" name="comments" class="form-control" value="{{this.device.comments}}"></td>
+	       <td><input type="submit" class="btn {{this.button_class}}" value="{{this.button_string}}"></td>
             </form>
          </tr>
 	 {{/each}}
