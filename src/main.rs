@@ -1,4 +1,4 @@
-#![feature(plugin)]
+#![feature(plugin, custom_derive)]
 #![plugin(rocket_codegen)]
 
 //#[macro_use] //this crate has macros, currently unused
@@ -36,7 +36,10 @@ fn run(config: utils::types::Settings) -> Result<(), failure::Error> {
     rocket::custom(rocket_config, true)
         .manage(config)
         .attach(rocket_contrib::Template::fairing())
-        .mount("/", routes![routes::index, routes::get_devices,])
+        .mount(
+            "/",
+            routes![routes::index, routes::get_devices, routes::post_devices,],
+        )
         .mount(
             "/api/",
             routes![routes::api_get_device, routes::api_get_devices,],

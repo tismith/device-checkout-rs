@@ -78,3 +78,16 @@ pub fn get_devices(
     context.insert("devices", devices);
     Ok(rocket_contrib::Template::render("devices", &context))
 }
+
+#[post("/devices", data = "<device_update>")]
+pub fn post_devices(
+    config: rocket::State<utils::types::Settings>,
+    device_update: rocket::request::Form<models::DeviceUpdate>,
+    //) -> Result<rocket_contrib::Template, failure::Error> {
+) -> Result<(), failure::Error> {
+    trace!("post_devices()");
+    trace!("device_update is {:?}", &device_update);
+    //lets try and reuse the devices hbs template, by adding an optional error section
+    //at the top
+    Ok(())
+}
