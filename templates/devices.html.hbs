@@ -5,6 +5,16 @@
 <body>
    <div class="container">
       <h1>Devices</h1>
+      {{#if success_message}}
+      <div class="alert alert-success">
+         <strong>Success:</strong> {{success_message}}
+      </div>
+      {{/if}}
+      {{#if error_message}}
+      <div class="alert alert-danger">
+         <strong>Error:</strong> {{error_message}}
+      </div>
+      {{/if}}
       <table class="table table-bordered">
          <thead class="thead-dark">
             <tr>

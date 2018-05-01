@@ -3,7 +3,6 @@ use failure;
 use models;
 use rocket;
 use rocket_contrib;
-use std;
 use utils;
 
 #[get("/")]
@@ -43,39 +42,53 @@ pub fn api_get_devices(
     Ok(rocket_contrib::Json(devices))
 }
 
+#[derive(Serialize)]
+struct PerDeviceContext {
+    device: models::Device,
+    button_string: String,
+    button_class: String,
+}
+
+#[derive(Serialize)]
+struct DevicesContext {
+    devices: Vec<PerDeviceContext>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    error_message: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    success_message: Option<String>,
+}
+
+fn format_device(device: models::Device) -> PerDeviceContext {
+    let button_string = match device.reservation_status {
+        models::ReservationStatus::Reserved => "RETURN".to_string(),
+        _ => "CLAIM".to_string(),
+    };
+    let button_class = match device.reservation_status {
+        models::ReservationStatus::Reserved => "btn-danger".to_string(),
+        _ => "btn-primary".to_string(),
+    };
+    PerDeviceContext {
+        device: device,
+        button_string,
+        button_class,
+    }
+}
+
 #[get("/devices")]
 pub fn get_devices(
     config: rocket::State<utils::types::Settings>,
 ) -> Result<rocket_contrib::Template, failure::Error> {
     trace!("get_devices()");
 
-    #[derive(Serialize)]
-    struct GetDevicesContext {
-        device: models::Device,
-        button_string: String,
-        button_class: String,
-    }
-
     let devices: Vec<_> = database::get_devices(&*config)?
         .into_iter()
-        .map(|d| {
-            let button_string = match d.reservation_status {
-                models::ReservationStatus::Reserved => "RETURN".to_string(),
-                _ => "CLAIM".to_string(),
-            };
-            let button_class = match d.reservation_status {
-                models::ReservationStatus::Reserved => "btn-danger".to_string(),
-                _ => "btn-primary".to_string(),
-            };
-            GetDevicesContext {
-                device: d,
-                button_string,
-                button_class,
-            }
-        })
+        .map(format_device)
         .collect();
-    let mut context = std::collections::HashMap::new();
-    context.insert("devices", devices);
+    let context = DevicesContext {
+        devices,
+        error_message: None,
+        success_message: None,
+    };
     Ok(rocket_contrib::Template::render("devices", &context))
 }
 
@@ -83,11 +96,19 @@ pub fn get_devices(
 pub fn post_devices(
     config: rocket::State<utils::types::Settings>,
     device_update: rocket::request::Form<models::DeviceUpdate>,
-    //) -> Result<rocket_contrib::Template, failure::Error> {
-) -> Result<(), failure::Error> {
+) -> Result<rocket_contrib::Template, failure::Error> {
     trace!("post_devices()");
     trace!("device_update is {:?}", &device_update);
-    //lets try and reuse the devices hbs template, by adding an optional error section
-    //at the top
-    Ok(())
+
+    let devices: Vec<_> = database::get_devices(&*config)?
+        .into_iter()
+        .map(format_device)
+        .collect();
+    let context = DevicesContext {
+        devices,
+        error_message: Some("Testing".to_string()),
+        success_message: None,
+    };
+
+    Ok(rocket_contrib::Template::render("devices", &context))
 }
