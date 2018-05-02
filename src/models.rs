@@ -28,7 +28,7 @@ impl<'v> FromFormValue<'v> for ReservationStatus {
 }
 
 //deliberately not making this Copy
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Default, Clone, Hash, Queryable, Serialize,
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Queryable, Serialize,
          Deserialize)]
 pub struct Device {
     pub id: i32,
@@ -43,12 +43,8 @@ pub struct Device {
     #[serde(default)]
     pub comments: Option<String>,
     pub reservation_status: ReservationStatus,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[serde(default)]
-    pub created_at: Option<chrono::NaiveDateTime>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[serde(default)]
-    pub updated_at: Option<chrono::NaiveDateTime>,
+    pub created_at: chrono::NaiveDateTime,
+    pub updated_at: chrono::NaiveDateTime,
 }
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Default, Clone, Hash, Queryable, Serialize,
