@@ -28,8 +28,7 @@ impl<'v> FromFormValue<'v> for ReservationStatus {
 }
 
 //deliberately not making this Copy
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Queryable, Serialize,
-         Deserialize)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Queryable, Serialize, Deserialize)]
 pub struct Device {
     pub id: i32,
     pub device_name: String,
