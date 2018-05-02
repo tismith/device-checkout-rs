@@ -49,7 +49,7 @@ struct PerDeviceContext {
     button_class: String,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Default)]
 struct DevicesContext {
     devices: Vec<PerDeviceContext>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -86,8 +86,7 @@ pub fn get_devices(
         .collect();
     let context = DevicesContext {
         devices,
-        error_message: None,
-        success_message: None,
+        ..Default::default()
     };
     Ok(rocket_contrib::Template::render("devices", &context))
 }
