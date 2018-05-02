@@ -44,3 +44,22 @@ pub fn get_device(
 
     Ok(result)
 }
+
+pub fn update_device(
+    config: &utils::types::Settings,
+    device_update: &models::DeviceUpdate,
+) -> Result<usize, failure::Error> {
+    use self::diesel::prelude::*;
+    use schema::devices::dsl::*;
+
+    let connection = establish_connection(config)?;
+
+    diesel::update(devices.filter(id.eq(&device_update.id)))
+        .set((
+            device_owner.eq(&device_update.device_owner),
+            comments.eq(&device_update.comments),
+            reservation_status.eq(&device_update.reservation_status),
+        ))
+        .execute(&connection)
+        .map_err(|e| e.into())
+}

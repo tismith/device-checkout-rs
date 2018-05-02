@@ -98,7 +98,29 @@ pub fn post_devices(
     device_update: rocket::request::Form<models::DeviceUpdate>,
 ) -> Result<rocket_contrib::Template, failure::Error> {
     trace!("post_devices()");
-    trace!("device_update is {:?}", &device_update);
+
+    let mut device = device_update.into_inner();
+    //toggle the reservation status
+    if device.reservation_status == models::ReservationStatus::Available {
+        device.reservation_status = models::ReservationStatus::Reserved;
+    } else {
+        device.reservation_status = models::ReservationStatus::Available;
+    }
+
+    //blank out the owner if we're returning it
+    if device.reservation_status == models::ReservationStatus::Available {
+        device.device_owner = None;
+    }
+
+    let update_result = database::update_device(&*config, &device);
+
+    let mut success_message = None;
+    let mut error_message = None;
+    if let Ok(_) = update_result {
+        success_message = Some("Device updated successufully".to_string());
+    } else {
+        error_message = Some("Failed to update device".to_string());
+    }
 
     let devices: Vec<_> = database::get_devices(&*config)?
         .into_iter()
@@ -106,8 +128,8 @@ pub fn post_devices(
         .collect();
     let context = DevicesContext {
         devices,
-        error_message: Some("Testing".to_string()),
-        success_message: None,
+        error_message,
+        success_message,
     };
 
     Ok(rocket_contrib::Template::render("devices", &context))
