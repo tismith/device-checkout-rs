@@ -117,8 +117,8 @@ pub fn post_devices(
     let mut error_message = None;
     if let Ok(_) = update_result {
         success_message = Some("Device updated successufully".to_string());
-    } else {
-        error_message = Some("Failed to update device".to_string());
+    } else if let Err(e) = update_result {
+        error_message = Some(format!("{}", e));
     }
 
     let devices: Vec<_> = database::get_devices(&*config)?
