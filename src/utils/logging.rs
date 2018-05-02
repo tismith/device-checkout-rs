@@ -11,9 +11,5 @@ pub fn configure_logger(config: &types::Settings) {
         .verbosity(config.verbosity)
         .timestamp(config.timestamp);
 
-    if let Some(ref module_path) = config.module_path {
-        logger.module(module_path.clone());
-    }
-
     logger.init().unwrap();
 }
