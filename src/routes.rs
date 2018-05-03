@@ -1,5 +1,6 @@
 use database;
 use failure;
+use failure::ResultExt;
 use models;
 use rocket;
 use rocket_contrib;
@@ -134,9 +135,13 @@ pub fn post_edit_devices(
     let update_result = if device.save.is_some() {
         trace!("saving");
         database::edit_device(&*config, device)
+            .context("Failed to save device")
+            .map_err(|e| e.into())
     } else if device.delete.is_some() {
         trace!("deleteing");
-        unimplemented!()
+        database::delete_device(&*config, device)
+            .context("Failed to delete device")
+            .map_err(|e| e.into())
     } else if device.add.is_some() {
         trace!("adding");
         unimplemented!()
@@ -168,7 +173,9 @@ pub fn post_devices(
         device.device_owner = None;
     }
 
-    let update_result = database::update_device(&*config, &device);
+    let update_result = database::update_device(&*config, &device)
+        .context("Failed to save device")
+        .map_err(|e| e.into());
 
     let context = gen_device_context(&*config, Some(update_result))?;
     Ok(rocket_contrib::Template::render("devices", &context))
