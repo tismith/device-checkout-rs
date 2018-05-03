@@ -126,12 +126,23 @@ pub fn get_edit_devices(
 #[post("/editDevices", data = "<device_edit>")]
 pub fn post_edit_devices(
     config: rocket::State<utils::types::Settings>,
-    device_edit: rocket::request::LenientForm<models::DeviceEdit>,
+    device_edit: rocket::request::Form<models::DeviceEdit>,
 ) -> Result<rocket_contrib::Template, failure::Error> {
     trace!("post_edit_devices()");
 
     let device = device_edit.get();
-    let update_result = database::edit_device(&*config, device);
+    let update_result = if device.save.is_some() {
+        trace!("saving");
+        database::edit_device(&*config, device)
+    } else if device.delete.is_some() {
+        trace!("deleteing");
+        unimplemented!()
+    } else if device.add.is_some() {
+        trace!("adding");
+        unimplemented!()
+    } else {
+        Err(failure::err_msg("Unknown form action"))
+    };
 
     let context = gen_device_context(&*config, Some(update_result))?;
     Ok(rocket_contrib::Template::render("edit_devices", &context))

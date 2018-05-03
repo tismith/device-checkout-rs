@@ -65,4 +65,7 @@ pub struct DeviceEdit {
     pub id: i32,
     pub device_name: String,
     pub device_url: String,
+    pub save: Option<String>,
+    pub delete: Option<String>,
+    pub add: Option<String>,
 }
