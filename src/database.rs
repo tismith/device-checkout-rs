@@ -84,3 +84,15 @@ pub fn edit_device(
         ))
         .execute(&connection)?)
 }
+
+///Edits the details specific to the device, i.e the name and url
+pub fn delete_device(
+    config: &utils::types::Settings,
+    device_edit: &models::DeviceEdit,
+) -> Result<usize, failure::Error> {
+    use self::diesel::prelude::*;
+    use schema::devices::dsl::*;
+
+    let connection = establish_connection(config)?;
+    Ok(diesel::delete(devices.filter(id.eq(&device_edit.id))).execute(&connection)?)
+}
