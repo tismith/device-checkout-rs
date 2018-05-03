@@ -6,6 +6,7 @@ use utils;
 use diesel::prelude::*;
 use failure::ResultExt;
 
+///Establish a database connection
 pub fn establish_connection(
     config: &utils::types::Settings,
 ) -> Result<diesel::sqlite::SqliteConnection, failure::Error> {
@@ -15,6 +16,7 @@ pub fn establish_connection(
         .with_context(|_| format!("Error connecting to {}", database_url))?)
 }
 
+///Get all the devices
 pub fn get_devices(config: &utils::types::Settings) -> Result<Vec<models::Device>, failure::Error> {
     use self::diesel::prelude::*;
     use schema::devices::dsl::*;
@@ -27,6 +29,7 @@ pub fn get_devices(config: &utils::types::Settings) -> Result<Vec<models::Device
     Ok(results)
 }
 
+///Lookup a single device
 pub fn get_device(
     config: &utils::types::Settings,
     requested_name: &str,
@@ -45,6 +48,7 @@ pub fn get_device(
     Ok(result)
 }
 
+///Updates a device, designed for the common case on the main http form
 pub fn update_device(
     config: &utils::types::Settings,
     device_update: &models::DeviceUpdate,
@@ -63,6 +67,7 @@ pub fn update_device(
         .execute(&connection)?)
 }
 
+///Edits the details specific to the device, i.e the name and url
 pub fn edit_device(
     config: &utils::types::Settings,
     device_edit: &models::DeviceEdit,
