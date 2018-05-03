@@ -44,29 +44,29 @@ pub fn api_get_devices(
 }
 
 #[derive(Serialize)]
-struct PerDeviceContext {
+struct PerDeviceContext<'a> {
     device: models::Device,
-    button_string: String,
-    button_class: String,
+    button_string: &'a str,
+    button_class: &'a str,
 }
 
 #[derive(Serialize, Default)]
-struct DevicesContext {
-    devices: Vec<PerDeviceContext>,
+struct DevicesContext<'a> {
+    devices: Vec<PerDeviceContext<'a>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     error_message: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    success_message: Option<String>,
+    success_message: Option<&'a str>,
 }
 
-fn format_device(device: models::Device) -> PerDeviceContext {
+fn format_device<'a>(device: models::Device) -> PerDeviceContext<'a> {
     let button_string = match device.reservation_status {
-        models::ReservationStatus::Reserved => "RETURN".to_string(),
-        _ => "CLAIM".to_string(),
+        models::ReservationStatus::Reserved => "RETURN",
+        _ => "CLAIM",
     };
     let button_class = match device.reservation_status {
-        models::ReservationStatus::Reserved => "btn-danger".to_string(),
-        _ => "btn-primary".to_string(),
+        models::ReservationStatus::Reserved => "btn-danger",
+        _ => "btn-primary",
     };
     PerDeviceContext {
         device: device,
@@ -75,10 +75,10 @@ fn format_device(device: models::Device) -> PerDeviceContext {
     }
 }
 
-fn gen_device_context<T>(
+fn gen_device_context<'a, T>(
     config: &utils::types::Settings,
-    db_result: Option<Result<T, failure::Error>>,
-) -> Result<DevicesContext, failure::Error> {
+    db_result: &Option<Result<T, failure::Error>>,
+) -> Result<DevicesContext<'a>, failure::Error> {
     trace!("gen_device_context");
 
     let mut success_message = None;
@@ -86,7 +86,7 @@ fn gen_device_context<T>(
 
     if let Some(db_result) = db_result {
         if let Ok(_) = db_result {
-            success_message = Some("Device updated successufully".to_string());
+            success_message = Some("Device updated successufully");
         } else if let Err(e) = db_result {
             error_message = Some(format!("{}", e));
         }
@@ -110,7 +110,7 @@ pub fn get_devices(
 ) -> Result<rocket_contrib::Template, failure::Error> {
     trace!("get_devices()");
 
-    let context = gen_device_context::<usize>(&*config, None)?;
+    let context = gen_device_context::<usize>(&*config, &None)?;
     Ok(rocket_contrib::Template::render("devices", &context))
 }
 
@@ -120,7 +120,7 @@ pub fn get_edit_devices(
 ) -> Result<rocket_contrib::Template, failure::Error> {
     trace!("get_edit_devices()");
 
-    let context = gen_device_context::<usize>(&*config, None)?;
+    let context = gen_device_context::<usize>(&*config, &None)?;
     Ok(rocket_contrib::Template::render("edit_devices", &context))
 }
 
@@ -149,7 +149,7 @@ pub fn post_edit_devices(
         Err(failure::err_msg("Unknown form action"))
     };
 
-    let context = gen_device_context(&*config, Some(update_result))?;
+    let context = gen_device_context(&*config, &Some(update_result))?;
     Ok(rocket_contrib::Template::render("edit_devices", &context))
 }
 
@@ -177,6 +177,6 @@ pub fn post_devices(
         .context("Failed to save device")
         .map_err(|e| e.into());
 
-    let context = gen_device_context(&*config, Some(update_result))?;
+    let context = gen_device_context(&*config, &Some(update_result))?;
     Ok(rocket_contrib::Template::render("devices", &context))
 }
