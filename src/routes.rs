@@ -4,6 +4,7 @@ use failure::ResultExt;
 use models;
 use rocket;
 use rocket_contrib;
+use std;
 use utils;
 
 #[get("/")]
@@ -54,9 +55,9 @@ struct PerDeviceContext<'a> {
 struct DevicesContext<'a> {
     devices: Vec<PerDeviceContext<'a>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    error_message: Option<String>,
+    error_message: Option<std::borrow::Cow<'a, str>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    success_message: Option<&'a str>,
+    success_message: Option<std::borrow::Cow<'a, str>>,
 }
 
 fn format_device<'a>(device: models::Device) -> PerDeviceContext<'a> {
@@ -86,9 +87,9 @@ fn gen_device_context<'a, T>(
 
     if let Some(db_result) = db_result {
         if let Ok(_) = db_result {
-            success_message = Some("Device updated successufully");
+            success_message = Some("Device updated successufully".into());
         } else if let Err(e) = db_result {
-            error_message = Some(format!("{}", e));
+            error_message = Some(format!("{}", e).into());
         }
     }
 
