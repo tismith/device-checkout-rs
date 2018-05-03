@@ -38,7 +38,13 @@ fn run(config: utils::types::Settings) -> Result<(), failure::Error> {
         .attach(rocket_contrib::Template::fairing())
         .mount(
             "/",
-            routes![routes::index, routes::get_devices, routes::post_devices,],
+            routes![
+                routes::index,
+                routes::get_devices,
+                routes::post_devices,
+                routes::get_edit_devices,
+                routes::post_edit_devices,
+            ],
         )
         .mount(
             "/api/",

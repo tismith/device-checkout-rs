@@ -91,6 +91,54 @@ pub fn get_devices(
     Ok(rocket_contrib::Template::render("devices", &context))
 }
 
+#[get("/editDevices")]
+pub fn get_edit_devices(
+    config: rocket::State<utils::types::Settings>,
+) -> Result<rocket_contrib::Template, failure::Error> {
+    trace!("get_edit_devices()");
+
+    let devices: Vec<_> = database::get_devices(&*config)?
+        .into_iter()
+        .map(format_device)
+        .collect();
+    let context = DevicesContext {
+        devices,
+        ..Default::default()
+    };
+    Ok(rocket_contrib::Template::render("edit_devices", &context))
+}
+
+#[post("/editDevices", data = "<device_edit>")]
+pub fn post_edit_devices(
+    config: rocket::State<utils::types::Settings>,
+    device_edit: rocket::request::LenientForm<models::DeviceEdit>,
+) -> Result<rocket_contrib::Template, failure::Error> {
+    trace!("post_edit_devices()");
+
+    let device = device_edit.get();
+    let update_result = database::edit_device(&*config, device);
+
+    let mut success_message = None;
+    let mut error_message = None;
+    if let Ok(_) = update_result {
+        success_message = Some("Device updated successufully".to_string());
+    } else if let Err(e) = update_result {
+        error_message = Some(format!("{}", e));
+    }
+
+    let devices: Vec<_> = database::get_devices(&*config)?
+        .into_iter()
+        .map(format_device)
+        .collect();
+    let context = DevicesContext {
+        devices,
+        error_message,
+        success_message,
+    };
+
+    Ok(rocket_contrib::Template::render("edit_devices", &context))
+}
+
 #[post("/devices", data = "<device_update>")]
 pub fn post_devices(
     config: rocket::State<utils::types::Settings>,

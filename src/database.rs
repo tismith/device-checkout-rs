@@ -62,3 +62,20 @@ pub fn update_device(
         ))
         .execute(&connection)?)
 }
+
+pub fn edit_device(
+    config: &utils::types::Settings,
+    device_edit: &models::DeviceEdit,
+) -> Result<usize, failure::Error> {
+    use self::diesel::prelude::*;
+    use schema::devices::dsl::*;
+
+    let connection = establish_connection(config)?;
+
+    Ok(diesel::update(devices.filter(id.eq(&device_edit.id)))
+        .set((
+            device_name.eq(&device_edit.device_name),
+            device_url.eq(&device_edit.device_url),
+        ))
+        .execute(&connection)?)
+}

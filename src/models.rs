@@ -58,3 +58,11 @@ pub struct DeviceUpdate {
     pub comments: Option<String>,
     pub reservation_status: ReservationStatus,
 }
+
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Default, Clone, Hash, Queryable, Serialize,
+         Deserialize, FromForm)]
+pub struct DeviceEdit {
+    pub id: i32,
+    pub device_name: String,
+    pub device_url: String,
+}
