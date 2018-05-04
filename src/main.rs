@@ -21,6 +21,7 @@ extern crate diesel_derive_enum;
 extern crate chrono;
 
 mod database;
+mod database_pool;
 mod models;
 mod routes;
 mod schema;
@@ -34,6 +35,7 @@ fn run(config: utils::types::Settings) -> Result<(), failure::Error> {
         .finalize()?;
 
     rocket::custom(rocket_config, true)
+        .manage(database_pool::init_pool(&config))
         .manage(config)
         .attach(rocket_contrib::Template::fairing())
         .mount(

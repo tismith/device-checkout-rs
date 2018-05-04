@@ -1,4 +1,5 @@
 use database;
+use database_pool;
 use failure;
 use failure::ResultExt;
 use models;
@@ -16,10 +17,11 @@ pub fn index() -> rocket::response::Redirect {
 #[get("/devices/<name>")]
 pub fn api_get_device(
     config: rocket::State<utils::types::Settings>,
+    database: database_pool::DbConn,
     name: String,
 ) -> Result<rocket_contrib::Json<models::Device>, rocket::response::status::Custom<String>> {
     trace!("api_get_device()");
-    database::get_device(&*config, &name)
+    database::get_device(&*config, &*database, &name)
         .map_err(|_| {
             rocket::response::status::Custom(
                 rocket::http::Status::InternalServerError,
@@ -38,9 +40,10 @@ pub fn api_get_device(
 #[get("/devices")]
 pub fn api_get_devices(
     config: rocket::State<utils::types::Settings>,
+    database: database_pool::DbConn,
 ) -> Result<rocket_contrib::Json<Vec<models::Device>>, failure::Error> {
     trace!("api_get_devices()");
-    let devices = database::get_devices(&*config)?;
+    let devices = database::get_devices(&*config, &*database)?;
     Ok(rocket_contrib::Json(devices))
 }
 
@@ -78,6 +81,7 @@ fn format_device<'a>(device: models::Device) -> PerDeviceContext<'a> {
 
 fn gen_device_context<'a, T>(
     config: &utils::types::Settings,
+    database: &database::DbConn,
     db_result: &Option<Result<T, failure::Error>>,
 ) -> Result<DevicesContext<'a>, failure::Error> {
     trace!("gen_device_context");
@@ -93,7 +97,7 @@ fn gen_device_context<'a, T>(
         }
     }
 
-    let devices: Vec<_> = database::get_devices(config)?
+    let devices: Vec<_> = database::get_devices(config, database)?
         .into_iter()
         .map(format_device)
         .collect();
@@ -108,46 +112,50 @@ fn gen_device_context<'a, T>(
 #[get("/devices")]
 pub fn get_devices(
     config: rocket::State<utils::types::Settings>,
+    database: database_pool::DbConn,
 ) -> Result<rocket_contrib::Template, failure::Error> {
     trace!("get_devices()");
 
-    let context = gen_device_context::<usize>(&*config, &None)?;
+    let context = gen_device_context::<usize>(&*config, &*database, &None)?;
     Ok(rocket_contrib::Template::render("devices", &context))
 }
 
 #[get("/editDevices")]
 pub fn get_edit_devices(
     config: rocket::State<utils::types::Settings>,
+    database: database_pool::DbConn,
 ) -> Result<rocket_contrib::Template, failure::Error> {
     trace!("get_edit_devices()");
 
-    let context = gen_device_context::<usize>(&*config, &None)?;
+    let context = gen_device_context::<usize>(&*config, &*database, &None)?;
     Ok(rocket_contrib::Template::render("edit_devices", &context))
 }
 
 #[post("/addDevices", data = "<device_add>")]
 pub fn post_add_devices(
     config: rocket::State<utils::types::Settings>,
+    database: database_pool::DbConn,
     device_add: Result<rocket::request::LenientForm<models::DeviceInsert>, Option<String>>,
 ) -> Result<rocket_contrib::Template, failure::Error> {
     trace!("post_add_devices()");
 
     let add_result = if let Ok(device_add) = device_add {
         let device = device_add.get();
-        database::insert_device(&*config, device)
+        database::insert_device(&*config, &*database, device)
             .context("Failed to add device")
             .map_err(|e| e.into())
     } else {
         Err(failure::err_msg("Failed to parse form data"))
     };
 
-    let context = gen_device_context(&*config, &Some(add_result))?;
+    let context = gen_device_context(&*config, &*database, &Some(add_result))?;
     Ok(rocket_contrib::Template::render("edit_devices", &context))
 }
 
 #[post("/editDevices", data = "<device_edit>")]
 pub fn post_edit_devices(
     config: rocket::State<utils::types::Settings>,
+    database: database_pool::DbConn,
     device_edit: Result<rocket::request::Form<models::DeviceEdit>, Option<String>>,
 ) -> Result<rocket_contrib::Template, failure::Error> {
     trace!("post_edit_devices()");
@@ -156,12 +164,12 @@ pub fn post_edit_devices(
         let device = device_edit.get();
         if device.save.is_some() {
             trace!("saving");
-            database::edit_device(&*config, &device)
+            database::edit_device(&*config, &*database, &device)
                 .context("Failed to save device")
                 .map_err(|e| e.into())
         } else if device.delete.is_some() {
             trace!("deleting");
-            database::delete_device(&*config, &device)
+            database::delete_device(&*config, &*database, &device)
                 .context("Failed to delete device")
                 .map_err(|e| e.into())
         } else {
@@ -171,13 +179,14 @@ pub fn post_edit_devices(
         Err(failure::err_msg("Failed to parse form data"))
     };
 
-    let context = gen_device_context(&*config, &Some(update_result))?;
+    let context = gen_device_context(&*config, &*database, &Some(update_result))?;
     Ok(rocket_contrib::Template::render("edit_devices", &context))
 }
 
 #[post("/devices", data = "<device_update>")]
 pub fn post_devices(
     config: rocket::State<utils::types::Settings>,
+    database: database_pool::DbConn,
     device_update: Result<rocket::request::Form<models::DeviceUpdate>, Option<String>>,
 ) -> Result<rocket_contrib::Template, failure::Error> {
     trace!("post_devices()");
@@ -196,13 +205,13 @@ pub fn post_devices(
             device.device_owner = None;
         }
 
-        database::update_device(&*config, &device)
+        database::update_device(&*config, &*database, &device)
             .context("Failed to save device")
             .map_err(|e| e.into())
     } else {
         Err(failure::err_msg("Failed to parse form data"))
     };
 
-    let context = gen_device_context(&*config, &Some(update_result))?;
+    let context = gen_device_context(&*config, &*database, &Some(update_result))?;
     Ok(rocket_contrib::Template::render("devices", &context))
 }

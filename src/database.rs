@@ -3,27 +3,20 @@ use failure;
 use models;
 use utils;
 
-use diesel::prelude::*;
 use failure::ResultExt;
 
-///Establish a database connection
-pub fn establish_connection(
-    config: &utils::types::Settings,
-) -> Result<diesel::sqlite::SqliteConnection, failure::Error> {
-    trace!("establish_connection()");
-    let database_url = &config.database_url;
-    Ok(diesel::sqlite::SqliteConnection::establish(database_url)
-        .with_context(|_| format!("Error connecting to {}", database_url))?)
-}
+pub type DbConn = diesel::sqlite::SqliteConnection;
 
 ///Get all the devices
-pub fn get_devices(config: &utils::types::Settings) -> Result<Vec<models::Device>, failure::Error> {
+pub fn get_devices(
+    _config: &utils::types::Settings,
+    database: &DbConn,
+) -> Result<Vec<models::Device>, failure::Error> {
     use self::diesel::prelude::*;
     use schema::devices::dsl::*;
 
-    let connection = establish_connection(config)?;
     let results = devices
-        .load::<models::Device>(&connection)
+        .load::<models::Device>(database)
         .with_context(|_| format!("Error loading devices"))?;
 
     Ok(results)
@@ -31,16 +24,16 @@ pub fn get_devices(config: &utils::types::Settings) -> Result<Vec<models::Device
 
 ///Lookup a single device
 pub fn get_device(
-    config: &utils::types::Settings,
+    _config: &utils::types::Settings,
+    database: &DbConn,
     requested_name: &str,
 ) -> Result<Option<models::Device>, failure::Error> {
     use self::diesel::prelude::*;
     use schema::devices::dsl::*;
 
-    let connection = establish_connection(config)?;
     let result = devices
         .filter(device_name.eq(requested_name))
-        .load::<models::Device>(&connection)
+        .load::<models::Device>(database)
         .with_context(|_| format!("Error loading devices"))?
         .into_iter()
         .next();
@@ -50,13 +43,12 @@ pub fn get_device(
 
 ///Updates a device, designed for the common case on the main http form
 pub fn update_device(
-    config: &utils::types::Settings,
+    _config: &utils::types::Settings,
+    database: &DbConn,
     device_update: &models::DeviceUpdate,
 ) -> Result<usize, failure::Error> {
     use self::diesel::prelude::*;
     use schema::devices::dsl::*;
-
-    let connection = establish_connection(config)?;
 
     Ok(diesel::update(devices.filter(id.eq(&device_update.id)))
         .set((
@@ -64,50 +56,48 @@ pub fn update_device(
             comments.eq(&device_update.comments),
             reservation_status.eq(&device_update.reservation_status),
         ))
-        .execute(&connection)?)
+        .execute(database)?)
 }
 
 ///Edits the details specific to the device, i.e the name and url
 pub fn edit_device(
-    config: &utils::types::Settings,
+    _config: &utils::types::Settings,
+    database: &DbConn,
     device_edit: &models::DeviceEdit,
 ) -> Result<usize, failure::Error> {
     use self::diesel::prelude::*;
     use schema::devices::dsl::*;
-
-    let connection = establish_connection(config)?;
 
     Ok(diesel::update(devices.filter(id.eq(&device_edit.id)))
         .set((
             device_name.eq(&device_edit.device_name),
             device_url.eq(&device_edit.device_url),
         ))
-        .execute(&connection)?)
+        .execute(database)?)
 }
 
 ///Edits the details specific to the device, i.e the name and url
 pub fn delete_device(
-    config: &utils::types::Settings,
+    _config: &utils::types::Settings,
+    database: &DbConn,
     device_edit: &models::DeviceEdit,
 ) -> Result<usize, failure::Error> {
     use self::diesel::prelude::*;
     use schema::devices::dsl::*;
 
-    let connection = establish_connection(config)?;
-    Ok(diesel::delete(devices.filter(id.eq(&device_edit.id))).execute(&connection)?)
+    Ok(diesel::delete(devices.filter(id.eq(&device_edit.id))).execute(database)?)
 }
 
 ///Inserts a new device
 pub fn insert_device(
-    config: &utils::types::Settings,
+    _config: &utils::types::Settings,
+    database: &DbConn,
     device_insert: &models::DeviceInsert,
 ) -> Result<usize, failure::Error> {
     use self::diesel::prelude::*;
     use schema::devices;
 
-    let connection = establish_connection(config)?;
-
     Ok(diesel::insert_into(devices::table)
         .values(device_insert)
-        .execute(&connection)?)
+        .execute(database)?)
 }
