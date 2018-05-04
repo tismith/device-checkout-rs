@@ -4,6 +4,9 @@ use models;
 use utils;
 
 use failure::ResultExt;
+use self::diesel::prelude::*;
+use schema::devices::dsl::*;
+use schema::devices;
 
 pub type DbConn = diesel::sqlite::SqliteConnection;
 
@@ -12,14 +15,9 @@ pub fn get_devices(
     _config: &utils::types::Settings,
     database: &DbConn,
 ) -> Result<Vec<models::Device>, failure::Error> {
-    use self::diesel::prelude::*;
-    use schema::devices::dsl::*;
-
-    let results = devices
+    Ok(devices
         .load::<models::Device>(database)
-        .with_context(|_| format!("Error loading devices"))?;
-
-    Ok(results)
+        .with_context(|_| format!("Error loading devices"))?)
 }
 
 ///Lookup a single device
@@ -28,17 +26,12 @@ pub fn get_device(
     database: &DbConn,
     requested_name: &str,
 ) -> Result<Option<models::Device>, failure::Error> {
-    use self::diesel::prelude::*;
-    use schema::devices::dsl::*;
-
-    let result = devices
+    Ok(devices
         .filter(device_name.eq(requested_name))
         .load::<models::Device>(database)
         .with_context(|_| format!("Error loading devices"))?
         .into_iter()
-        .next();
-
-    Ok(result)
+        .next())
 }
 
 ///Updates a device, designed for the common case on the main http form
@@ -47,9 +40,6 @@ pub fn update_device(
     database: &DbConn,
     device_update: &models::DeviceUpdate,
 ) -> Result<usize, failure::Error> {
-    use self::diesel::prelude::*;
-    use schema::devices::dsl::*;
-
     Ok(diesel::update(devices.filter(id.eq(&device_update.id)))
         .set((
             device_owner.eq(&device_update.device_owner),
@@ -65,9 +55,6 @@ pub fn edit_device(
     database: &DbConn,
     device_edit: &models::DeviceEdit,
 ) -> Result<usize, failure::Error> {
-    use self::diesel::prelude::*;
-    use schema::devices::dsl::*;
-
     Ok(diesel::update(devices.filter(id.eq(&device_edit.id)))
         .set((
             device_name.eq(&device_edit.device_name),
@@ -82,9 +69,6 @@ pub fn delete_device(
     database: &DbConn,
     device_edit: &models::DeviceEdit,
 ) -> Result<usize, failure::Error> {
-    use self::diesel::prelude::*;
-    use schema::devices::dsl::*;
-
     Ok(diesel::delete(devices.filter(id.eq(&device_edit.id))).execute(database)?)
 }
 
@@ -94,9 +78,6 @@ pub fn insert_device(
     database: &DbConn,
     device_insert: &models::DeviceInsert,
 ) -> Result<usize, failure::Error> {
-    use self::diesel::prelude::*;
-    use schema::devices;
-
     Ok(diesel::insert_into(devices::table)
         .values(device_insert)
         .execute(database)?)
