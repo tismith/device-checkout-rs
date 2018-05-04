@@ -3,10 +3,10 @@ use failure;
 use models;
 use utils;
 
-use failure::ResultExt;
 use self::diesel::prelude::*;
-use schema::devices::dsl::*;
+use failure::ResultExt;
 use schema::devices;
+use schema::devices::dsl::*;
 
 pub type DbConn = diesel::sqlite::SqliteConnection;
 

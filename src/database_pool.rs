@@ -5,12 +5,10 @@ use utils;
 use rocket::request::FromRequest;
 use std::ops::Deref;
 
-// An alias to the type for a pool of Diesel SQLite connections.
-pub type SqlitePool =
-    diesel::r2d2::Pool<diesel::r2d2::ConnectionManager<diesel::sqlite::SqliteConnection>>;
-
 /// Initializes a database pool.
-pub fn init_pool(config: &utils::types::Settings) -> SqlitePool {
+pub fn init_pool(
+    config: &utils::types::Settings,
+) -> diesel::r2d2::Pool<diesel::r2d2::ConnectionManager<diesel::sqlite::SqliteConnection>> {
     let database_url = config.database_url.clone();
     let manager =
         diesel::r2d2::ConnectionManager::<diesel::sqlite::SqliteConnection>::new(database_url);
@@ -33,7 +31,9 @@ impl<'a, 'r> FromRequest<'a, 'r> for DbConn {
     fn from_request(
         request: &'a rocket::request::Request<'r>,
     ) -> rocket::request::Outcome<Self, Self::Error> {
-        let pool = request.guard::<rocket::State<SqlitePool>>()?;
+        let pool = request.guard::<rocket::State<
+            diesel::r2d2::Pool<diesel::r2d2::ConnectionManager<diesel::sqlite::SqliteConnection>>,
+        >>()?;
         match pool.get() {
             Ok(conn) => rocket::Outcome::Success(DbConn(conn)),
             Err(_) => rocket::Outcome::Failure((rocket::http::Status::ServiceUnavailable, ())),
