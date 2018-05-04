@@ -96,3 +96,18 @@ pub fn delete_device(
     let connection = establish_connection(config)?;
     Ok(diesel::delete(devices.filter(id.eq(&device_edit.id))).execute(&connection)?)
 }
+
+///Inserts a new device
+pub fn insert_device(
+    config: &utils::types::Settings,
+    device_insert: &models::DeviceInsert,
+) -> Result<usize, failure::Error> {
+    use self::diesel::prelude::*;
+    use schema::devices;
+
+    let connection = establish_connection(config)?;
+
+    Ok(diesel::insert_into(devices::table)
+        .values(device_insert)
+        .execute(&connection)?)
+}

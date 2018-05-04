@@ -1,5 +1,6 @@
 use chrono;
 use rocket;
+use schema::devices;
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash, Serialize, Deserialize,
          DbEnum)]
@@ -68,4 +69,12 @@ pub struct DeviceEdit {
     pub save: Option<String>,
     pub delete: Option<String>,
     pub add: Option<String>,
+}
+
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Default, Clone, Hash, Serialize, Deserialize,
+         Insertable)]
+#[table_name = "devices"]
+pub struct DeviceInsert<'a> {
+    pub device_name: &'a str,
+    pub device_url: &'a str,
 }

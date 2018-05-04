@@ -139,13 +139,20 @@ pub fn post_edit_devices(
             .context("Failed to save device")
             .map_err(|e| e.into())
     } else if device.delete.is_some() {
-        trace!("deleteing");
+        trace!("deleting");
         database::delete_device(&*config, device)
             .context("Failed to delete device")
             .map_err(|e| e.into())
     } else if device.add.is_some() {
         trace!("adding");
-        unimplemented!()
+        database::insert_device(
+            &*config,
+            &models::DeviceInsert {
+                device_name: &device.device_name,
+                device_url: &device.device_url,
+            },
+        ).context("Failed to add device")
+            .map_err(|e| e.into())
     } else {
         Err(failure::err_msg("Unknown form action"))
     };
