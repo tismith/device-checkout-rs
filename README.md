@@ -1,8 +1,6 @@
 # device-checkout-rs [![Build Status](https://travis-ci.org/tismith/device-checkout-rs.svg?branch=master)](https://travis-ci.org/tismith/device-checkout-rs)
 
-Reimplementation of https://github.com/tismith/deviceCheckout in rust.
-
-Still a work in progress.
+Reimplementation of https://github.com/tismith/deviceCheckout in rust. Basically complete now. The HTTP API endpoints could use some more breadth, but the form based web ui is functional.
 
 
 Since this is using `rocket` for the web framework, we need to use rust nightly. So to set the compiler stream for this project, do:
