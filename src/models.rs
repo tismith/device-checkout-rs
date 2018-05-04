@@ -68,13 +68,12 @@ pub struct DeviceEdit {
     pub device_url: String,
     pub save: Option<String>,
     pub delete: Option<String>,
-    pub add: Option<String>,
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Default, Clone, Hash, Serialize, Deserialize,
-         Insertable)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Default, Clone, Hash, Queryable, Serialize,
+         Deserialize, FromForm, Insertable)]
 #[table_name = "devices"]
-pub struct DeviceInsert<'a> {
-    pub device_name: &'a str,
-    pub device_url: &'a str,
+pub struct DeviceInsert {
+    pub device_name: String,
+    pub device_url: String,
 }

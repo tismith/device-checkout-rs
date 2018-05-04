@@ -125,6 +125,21 @@ pub fn get_edit_devices(
     Ok(rocket_contrib::Template::render("edit_devices", &context))
 }
 
+#[post("/addDevices", data = "<device_add>")]
+pub fn post_add_devices(
+    config: rocket::State<utils::types::Settings>,
+    device_add: rocket::request::LenientForm<models::DeviceInsert>,
+) -> Result<rocket_contrib::Template, failure::Error> {
+    trace!("post_add_devices()");
+
+    let device = device_add.get();
+    let add_result = database::insert_device(&*config, device)
+        .context("Failed to add device")
+        .map_err(|e| e.into());
+    let context = gen_device_context(&*config, &Some(add_result))?;
+    Ok(rocket_contrib::Template::render("edit_devices", &context))
+}
+
 #[post("/editDevices", data = "<device_edit>")]
 pub fn post_edit_devices(
     config: rocket::State<utils::types::Settings>,
@@ -135,23 +150,13 @@ pub fn post_edit_devices(
     let device = device_edit.get();
     let update_result = if device.save.is_some() {
         trace!("saving");
-        database::edit_device(&*config, device)
+        database::edit_device(&*config, &device)
             .context("Failed to save device")
             .map_err(|e| e.into())
     } else if device.delete.is_some() {
         trace!("deleting");
-        database::delete_device(&*config, device)
+        database::delete_device(&*config, &device)
             .context("Failed to delete device")
-            .map_err(|e| e.into())
-    } else if device.add.is_some() {
-        trace!("adding");
-        database::insert_device(
-            &*config,
-            &models::DeviceInsert {
-                device_name: &device.device_name,
-                device_url: &device.device_url,
-            },
-        ).context("Failed to add device")
             .map_err(|e| e.into())
     } else {
         Err(failure::err_msg("Unknown form action"))

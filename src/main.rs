@@ -44,6 +44,7 @@ fn run(config: utils::types::Settings) -> Result<(), failure::Error> {
                 routes::post_devices,
                 routes::get_edit_devices,
                 routes::post_edit_devices,
+                routes::post_add_devices,
             ],
         )
         .mount(
