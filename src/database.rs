@@ -1,6 +1,7 @@
 use diesel;
 use failure;
 use models;
+use std;
 use utils;
 
 use self::diesel::prelude::*;
@@ -9,6 +10,20 @@ use schema::devices;
 use schema::devices::dsl::*;
 
 pub type DbConn = diesel::sqlite::SqliteConnection;
+
+embed_migrations!();
+
+pub fn run_migrations(config: &utils::types::Settings) -> Result<(), failure::Error> {
+    let connection = establish_connection(config)?;
+    embedded_migrations::run_with_output(&connection, &mut std::io::stdout())?;
+    Ok(())
+}
+
+fn establish_connection(config: &utils::types::Settings) -> Result<DbConn, failure::Error> {
+    trace!("establish_connection()");
+    Ok(DbConn::establish(&config.database_url)
+        .with_context(|_| format!("Error connection to {}", &config.database_url))?)
+}
 
 ///Get all the devices
 pub fn get_devices(

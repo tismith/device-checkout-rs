@@ -17,6 +17,8 @@ extern crate serde_json;
 #[macro_use]
 extern crate diesel;
 #[macro_use]
+extern crate diesel_migrations;
+#[macro_use]
 extern crate diesel_derive_enum;
 extern crate chrono;
 
@@ -29,6 +31,8 @@ mod utils;
 
 fn run(config: utils::types::Settings) -> Result<(), failure::Error> {
     trace!("run()");
+
+    database::run_migrations(&config)?;
 
     let rocket_config = rocket::config::Config::build(rocket::config::Environment::Production)
         .port(config.port)

@@ -3,17 +3,9 @@
 Reimplementation of https://github.com/tismith/deviceCheckout in rust. Basically complete now. The HTTP API endpoints could use some more breadth, but the form based web ui is functional.
 
 
-Since this is using `rocket` for the web framework, we need to use rust nightly. So to set the compiler stream for this project, do:
-```sh
-rustup override set nightly
-```
+Since this is using `rocket` for the web framework, we need to use rust nightly, so we've pinned a working compiler using the rustc-toolchain file. Cargo build will pull down and install the correct compiler.
 
-To build the database do:
-```sh
-cargo install diesel_cli --no-default-features --features sqlite
-export DATABASE_URL=devices.db
-diesel setup
-```
+We use `diesel-migrations` to automatically build and migrate the database. No need to see the database manually.
 
 To run the application do:
 ```sh
@@ -28,6 +20,3 @@ cargo run
 * `clap` for commandline argument processing
 * `failure` for error handling
 * `assert_cli` for integration testing
-
-## To do:
-* Look at `diesel_migrations` to build the migrations into the binary
