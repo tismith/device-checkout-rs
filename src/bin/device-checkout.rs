@@ -17,14 +17,8 @@ fn run(config: utils::types::Settings) -> Result<(), failure::Error> {
         .manage(database_pool::init_pool(&config))
         .manage(config)
         .attach(rocket_contrib::Template::fairing())
-        .mount(
-            "/",
-            routes::html_routes()
-        )
-        .mount(
-            "/api/",
-            routes::api_routes()
-        )
+        .mount("/", routes::html_routes())
+        .mount("/api/", routes::api_routes())
         .launch();
 
     Ok(())
