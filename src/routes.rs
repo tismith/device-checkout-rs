@@ -8,6 +8,21 @@ use rocket_contrib;
 use std;
 use utils;
 
+pub fn html_routes() -> Vec<rocket::Route> {
+    routes![
+        self::index,
+        self::get_devices,
+        self::post_devices,
+        self::get_edit_devices,
+        self::post_edit_devices,
+        self::post_add_devices
+    ]
+}
+
+pub fn api_routes() -> Vec<rocket::Route> {
+    routes![self::api_get_device, self::api_get_devices]
+}
+
 #[get("/")]
 pub fn index() -> rocket::response::Redirect {
     trace!("index()");

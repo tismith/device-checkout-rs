@@ -1,5 +1,5 @@
 [package]
-name = "device-checkout-rs"
+name = "device-checkout-lib"
 version = "0.1.0"
 authors = ["Toby Smith <toby@tismith.id.au>"]
 license = "MIT"
