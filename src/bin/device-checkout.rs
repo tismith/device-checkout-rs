@@ -6,21 +6,8 @@ extern crate log;
 
 fn run(config: utils::types::Settings) -> Result<(), failure::Error> {
     trace!("run()");
-
     database::run_migrations(&config)?;
-
-    let rocket_config = rocket::config::Config::build(rocket::config::Environment::Production)
-        .port(config.port)
-        .finalize()?;
-
-    rocket::custom(rocket_config, true)
-        .manage(database_pool::init_pool(&config))
-        .manage(config)
-        .attach(rocket_contrib::Template::fairing())
-        .mount("/", routes::html_routes())
-        .mount("/api/", routes::api_routes())
-        .launch();
-
+    routes::rocket(config)?.launch();
     Ok(())
 }
 

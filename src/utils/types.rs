@@ -11,6 +11,14 @@ pub struct Settings {
     pub port: u16,
 }
 
+impl Settings {
+    pub fn new() -> Self {
+        Self {
+            ..Default::default()
+        }
+    }
+}
+
 impl Default for Settings {
     fn default() -> Settings {
         Settings {

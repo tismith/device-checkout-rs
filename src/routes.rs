@@ -230,3 +230,16 @@ pub fn post_devices(
     let context = gen_device_context(&*config, &*database, &Some(update_result))?;
     Ok(rocket_contrib::Template::render("devices", &context))
 }
+
+pub fn rocket(config: utils::types::Settings) -> Result<rocket::Rocket, failure::Error> {
+    let rocket_config = rocket::config::Config::build(rocket::config::Environment::Production)
+        .port(config.port)
+        .finalize()?;
+
+    Ok(rocket::custom(rocket_config, true)
+        .manage(database_pool::init_pool(&config))
+        .manage(config)
+        .attach(rocket_contrib::Template::fairing())
+        .mount("/", html_routes())
+        .mount("/api/", api_routes()))
+}
