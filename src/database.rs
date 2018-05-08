@@ -32,7 +32,7 @@ pub fn get_devices(
 ) -> Result<Vec<models::Device>, failure::Error> {
     Ok(devices
         .load::<models::Device>(database)
-        .with_context(|_| format!("Error loading devices"))?)
+        .with_context(|_| "Error loading devices".to_string())?)
 }
 
 ///Lookup a single device
@@ -44,7 +44,7 @@ pub fn get_device(
     Ok(devices
         .filter(device_name.eq(requested_name))
         .load::<models::Device>(database)
-        .with_context(|_| format!("Error loading devices"))?
+        .with_context(|_| "Error loading devices".to_string())?
         .into_iter()
         .next())
 }

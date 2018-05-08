@@ -47,6 +47,7 @@ pub struct Device {
     pub updated_at: chrono::NaiveDateTime,
 }
 
+#[cfg_attr(feature = "cargo-clippy", allow(print_literal, suspicious_else_formatting))]
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Default, Clone, Hash, Queryable, Serialize,
          Deserialize, FromForm)]
 pub struct DeviceUpdate {
@@ -60,6 +61,7 @@ pub struct DeviceUpdate {
     pub reservation_status: ReservationStatus,
 }
 
+#[cfg_attr(feature = "cargo-clippy", allow(print_literal, suspicious_else_formatting))]
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Default, Clone, Hash, Queryable, Serialize,
          Deserialize, FromForm)]
 pub struct DeviceEdit {
@@ -70,6 +72,7 @@ pub struct DeviceEdit {
     pub delete: Option<String>,
 }
 
+#[cfg_attr(feature = "cargo-clippy", allow(print_literal, suspicious_else_formatting))]
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Default, Clone, Hash, Queryable, Serialize,
          Deserialize, FromForm, Insertable)]
 #[table_name = "devices"]

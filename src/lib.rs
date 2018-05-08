@@ -23,8 +23,8 @@ pub extern crate diesel_derive_enum;
 pub extern crate chrono;
 
 pub mod database;
-pub mod database_pool;
 pub mod models;
+pub mod pool;
 pub mod routes;
 pub mod schema;
 pub mod utils;

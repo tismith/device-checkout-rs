@@ -1,5 +1,7 @@
+#![cfg_attr(feature = "cargo-clippy", allow(print_literal))]
+
 use database;
-use database_pool;
+use pool;
 use failure;
 use failure::ResultExt;
 use models;
@@ -29,10 +31,11 @@ pub fn index() -> rocket::response::Redirect {
     rocket::response::Redirect::to("/devices")
 }
 
+#[cfg_attr(feature = "cargo-clippy", allow(needless_pass_by_value))]
 #[get("/devices/<name>")]
 pub fn api_get_device(
     config: rocket::State<utils::types::Settings>,
-    database: database_pool::DbConn,
+    database: pool::DbConn,
     name: String,
 ) -> Result<rocket_contrib::Json<models::Device>, rocket::response::status::Custom<String>> {
     trace!("api_get_device()");
@@ -44,7 +47,7 @@ pub fn api_get_device(
             )
         })
         .and_then(|devices| {
-            devices.ok_or(rocket::response::status::Custom(
+            devices.ok_or_else(|| rocket::response::status::Custom(
                 rocket::http::Status::NotFound,
                 "404 Not Found".to_string(),
             ))
@@ -52,10 +55,11 @@ pub fn api_get_device(
         .map(rocket_contrib::Json)
 }
 
+#[cfg_attr(feature = "cargo-clippy", allow(needless_pass_by_value))]
 #[get("/devices")]
 pub fn api_get_devices(
     config: rocket::State<utils::types::Settings>,
-    database: database_pool::DbConn,
+    database: pool::DbConn,
 ) -> Result<rocket_contrib::Json<Vec<models::Device>>, failure::Error> {
     trace!("api_get_devices()");
     let devices = database::get_devices(&*config, &*database)?;
@@ -88,7 +92,7 @@ fn format_device<'a>(device: models::Device) -> PerDeviceContext<'a> {
         _ => "btn-primary",
     };
     PerDeviceContext {
-        device: device,
+        device,
         button_string,
         button_class,
     }
@@ -105,7 +109,7 @@ fn gen_device_context<'a, T>(
     let mut error_message = None;
 
     if let Some(db_result) = db_result {
-        if let Ok(_) = db_result {
+        if db_result.is_ok() {
             success_message = Some("Device updated successufully".into());
         } else if let Err(e) = db_result {
             error_message = Some(format!("{}", e).into());
@@ -124,10 +128,11 @@ fn gen_device_context<'a, T>(
     })
 }
 
+#[cfg_attr(feature = "cargo-clippy", allow(needless_pass_by_value))]
 #[get("/devices")]
 pub fn get_devices(
     config: rocket::State<utils::types::Settings>,
-    database: database_pool::DbConn,
+    database: pool::DbConn,
 ) -> Result<rocket_contrib::Template, failure::Error> {
     trace!("get_devices()");
 
@@ -135,10 +140,11 @@ pub fn get_devices(
     Ok(rocket_contrib::Template::render("devices", &context))
 }
 
+#[cfg_attr(feature = "cargo-clippy", allow(needless_pass_by_value))]
 #[get("/editDevices")]
 pub fn get_edit_devices(
     config: rocket::State<utils::types::Settings>,
-    database: database_pool::DbConn,
+    database: pool::DbConn,
 ) -> Result<rocket_contrib::Template, failure::Error> {
     trace!("get_edit_devices()");
 
@@ -146,10 +152,11 @@ pub fn get_edit_devices(
     Ok(rocket_contrib::Template::render("edit_devices", &context))
 }
 
+#[cfg_attr(feature = "cargo-clippy", allow(needless_pass_by_value))]
 #[post("/addDevices", data = "<device_add>")]
 pub fn post_add_devices(
     config: rocket::State<utils::types::Settings>,
-    database: database_pool::DbConn,
+    database: pool::DbConn,
     device_add: Result<rocket::request::LenientForm<models::DeviceInsert>, Option<String>>,
 ) -> Result<rocket_contrib::Template, failure::Error> {
     trace!("post_add_devices()");
@@ -167,10 +174,11 @@ pub fn post_add_devices(
     Ok(rocket_contrib::Template::render("edit_devices", &context))
 }
 
+#[cfg_attr(feature = "cargo-clippy", allow(needless_pass_by_value))]
 #[post("/editDevices", data = "<device_edit>")]
 pub fn post_edit_devices(
     config: rocket::State<utils::types::Settings>,
-    database: database_pool::DbConn,
+    database: pool::DbConn,
     device_edit: Result<rocket::request::Form<models::DeviceEdit>, Option<String>>,
 ) -> Result<rocket_contrib::Template, failure::Error> {
     trace!("post_edit_devices()");
@@ -198,10 +206,11 @@ pub fn post_edit_devices(
     Ok(rocket_contrib::Template::render("edit_devices", &context))
 }
 
+#[cfg_attr(feature = "cargo-clippy", allow(needless_pass_by_value))]
 #[post("/devices", data = "<device_update>")]
 pub fn post_devices(
     config: rocket::State<utils::types::Settings>,
-    database: database_pool::DbConn,
+    database: pool::DbConn,
     device_update: Result<rocket::request::Form<models::DeviceUpdate>, Option<String>>,
 ) -> Result<rocket_contrib::Template, failure::Error> {
     trace!("post_devices()");
@@ -237,7 +246,7 @@ pub fn rocket(config: utils::types::Settings) -> Result<rocket::Rocket, failure:
         .finalize()?;
 
     Ok(rocket::custom(rocket_config, true)
-        .manage(database_pool::init_pool(&config))
+        .manage(pool::init_pool(&config))
         .manage(config)
         .attach(rocket_contrib::Template::fairing())
         .mount("/", html_routes())
