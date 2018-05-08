@@ -1,10 +1,10 @@
 #![cfg_attr(feature = "cargo-clippy", allow(print_literal))]
 
 use database;
-use pool;
 use failure;
 use failure::ResultExt;
 use models;
+use pool;
 use rocket;
 use rocket_contrib;
 use std;
@@ -47,10 +47,12 @@ pub fn api_get_device(
             )
         })
         .and_then(|devices| {
-            devices.ok_or_else(|| rocket::response::status::Custom(
-                rocket::http::Status::NotFound,
-                "404 Not Found".to_string(),
-            ))
+            devices.ok_or_else(|| {
+                rocket::response::status::Custom(
+                    rocket::http::Status::NotFound,
+                    "404 Not Found".to_string(),
+                )
+            })
         })
         .map(rocket_contrib::Json)
 }
