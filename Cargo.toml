@@ -39,4 +39,4 @@ features = ["sqlite"]
 [dev-dependencies]
 assert_cli = "0.5"
 tempfile = "3.0"
-
+victoria-dom = "0.1"

@@ -2,6 +2,7 @@ extern crate device_checkout_lib;
 use device_checkout_lib::*;
 
 extern crate tempfile;
+extern crate victoria_dom;
 
 #[test]
 fn test_api_get_device() {
@@ -85,12 +86,22 @@ fn test_html_post_devices() {
 
     let mut response = client
         .post("/devices")
-        .header(rocket::http::ContentType(<rocket::http::MediaType>::Form))
-        .body(r#"id=1&device_owner=Owner&comments=xyzzy&reservation_status=available"#)
+        .header(rocket::http::ContentType(rocket::http::MediaType::Form))
+        .body(r#"id=1&device_owner=Owner&comments=xyzzy&reservation_status=Available"#)
         .dispatch();
 
     assert_eq!(response.status(), rocket::http::Status::Ok);
     let body = response.body_string().unwrap();
     assert!(body.contains("http://unit1"));
     assert!(body.contains("xyzzy"));
+
+    let dom = victoria_dom::DOM::new(&body);
+    let _ = dom.at(r#"form[name="unit1"] input[name="device_owner"][value="Owner"]"#)
+        .expect("failed to find owner");
+
+    let _ = dom.at(r#"form[name="unit1"] input[name="reservation_status"][value="Reserved"]"#)
+        .expect("failed to find reservation status");
+
+    let _ = dom.at(r#"form[name="unit1"] input[name="comments"][value="xyzzy"]"#)
+        .expect("failed to find comments");
 }
