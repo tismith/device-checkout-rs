@@ -183,3 +183,19 @@ fn test_html_add_devices() {
     let _ = dom.at(r#"form[name="testunit"] input[name="device_url"][value="testurl"]"#)
         .expect("failed to find added device");
 }
+
+#[test]
+fn test_get_root() {
+    let file = tempfile::NamedTempFile::new().expect("creating tempfile");
+    let mut config = utils::types::Settings::new();
+    config.database_url = file.path().to_string_lossy().to_owned().to_string();
+
+    database::run_migrations(&config).expect("running migrations");
+
+    let rocket = routes::rocket(config).expect("creating rocket instance");
+    let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
+
+    let response = client.get("/").dispatch();
+
+    assert_eq!(response.status(), rocket::http::Status::SeeOther);
+}
