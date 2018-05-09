@@ -109,3 +109,77 @@ fn test_html_post_devices() {
     let _ = dom.at(r#"form[name="unit1"] input[name="comments"][value="xyzzy"]"#)
         .expect("failed to find comments");
 }
+
+#[test]
+fn test_html_edit_devices() {
+    let file = tempfile::NamedTempFile::new().expect("creating tempfile");
+    let mut config = utils::types::Settings::new();
+    config.database_url = file.path().to_string_lossy().to_owned().to_string();
+
+    database::run_migrations(&config).expect("running migrations");
+
+    let rocket = routes::rocket(config).expect("creating rocket instance");
+    let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
+
+    let mut response = client
+        .post("/editDevices")
+        .header(rocket::http::ContentType(rocket::http::MediaType::Form))
+        .body(r#"id=1&device_name=testunit&device_url=testurl&save=SAVE"#)
+        .dispatch();
+
+    assert_eq!(response.status(), rocket::http::Status::Ok);
+    let body = response.body_string().unwrap();
+
+    let dom = victoria_dom::DOM::new(&body);
+    let _ = dom.at(r#"form[name="testunit"] input[name="device_url"][value="testurl"]"#)
+        .expect("failed to find edited device");
+}
+
+#[test]
+fn test_html_edit_devices_delete() {
+    let file = tempfile::NamedTempFile::new().expect("creating tempfile");
+    let mut config = utils::types::Settings::new();
+    config.database_url = file.path().to_string_lossy().to_owned().to_string();
+
+    database::run_migrations(&config).expect("running migrations");
+
+    let rocket = routes::rocket(config).expect("creating rocket instance");
+    let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
+
+    let mut response = client
+        .post("/editDevices")
+        .header(rocket::http::ContentType(rocket::http::MediaType::Form))
+        .body(r#"id=1&device_name=testunit&device_url=testurl&delete=DELETE"#)
+        .dispatch();
+
+    assert_eq!(response.status(), rocket::http::Status::Ok);
+    let body = response.body_string().unwrap();
+
+    let dom = victoria_dom::DOM::new(&body);
+    assert!(dom.at(r#"form[name="unit1"]"#).is_none());
+}
+
+#[test]
+fn test_html_add_devices() {
+    let file = tempfile::NamedTempFile::new().expect("creating tempfile");
+    let mut config = utils::types::Settings::new();
+    config.database_url = file.path().to_string_lossy().to_owned().to_string();
+
+    database::run_migrations(&config).expect("running migrations");
+
+    let rocket = routes::rocket(config).expect("creating rocket instance");
+    let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
+
+    let mut response = client
+        .post("/addDevices")
+        .header(rocket::http::ContentType(rocket::http::MediaType::Form))
+        .body(r#"device_name=testunit&device_url=testurl&add=ADD"#)
+        .dispatch();
+
+    assert_eq!(response.status(), rocket::http::Status::Ok);
+    let body = response.body_string().unwrap();
+
+    let dom = victoria_dom::DOM::new(&body);
+    let _ = dom.at(r#"form[name="testunit"] input[name="device_url"][value="testurl"]"#)
+        .expect("failed to find added device");
+}
