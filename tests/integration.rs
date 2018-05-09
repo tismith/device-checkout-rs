@@ -52,8 +52,11 @@ fn test_html_get_devices() {
     let mut response = client.get("/devices").dispatch();
     assert_eq!(response.status(), rocket::http::Status::Ok);
     let body = response.body_string().unwrap();
-    assert!(body.contains("http://unit1"));
-    assert!(body.contains("http://unit2"));
+    let dom = victoria_dom::DOM::new(&body);
+    let _ = dom.at(r#"form[name="unit1"] a[href="http://unit1"]"#)
+        .expect("failed to find unit1");
+    let _ = dom.at(r#"form[name="unit2"] a[href="http://unit2"]"#)
+        .expect("failed to find unit2");
 }
 
 #[test]
@@ -69,8 +72,11 @@ fn test_html_get_edit_devices() {
     let mut response = client.get("/editDevices").dispatch();
     assert_eq!(response.status(), rocket::http::Status::Ok);
     let body = response.body_string().unwrap();
-    assert!(body.contains("http://unit1"));
-    assert!(body.contains("http://unit2"));
+    let dom = victoria_dom::DOM::new(&body);
+    let _ = dom.at(r#"form[name="unit1"] input[name="device_url"][value="http://unit1"]"#)
+        .expect("failed to find unit1");
+    let _ = dom.at(r#"form[name="unit2"] input[name="device_url"][value="http://unit2"]"#)
+        .expect("failed to find unit2");
 }
 
 #[test]
@@ -92,8 +98,6 @@ fn test_html_post_devices() {
 
     assert_eq!(response.status(), rocket::http::Status::Ok);
     let body = response.body_string().unwrap();
-    assert!(body.contains("http://unit1"));
-    assert!(body.contains("xyzzy"));
 
     let dom = victoria_dom::DOM::new(&body);
     let _ = dom.at(r#"form[name="unit1"] input[name="device_owner"][value="Owner"]"#)
