@@ -1,19 +1,21 @@
-# device-checkout-rs [![Build Status](https://travis-ci.org/tismith/device-checkout-rs.svg?branch=master)](https://travis-ci.org/tismith/device-checkout-rs) [![codecov](https://codecov.io/gh/tismith/device-checkout-rs/branch/master/graph/badge.svg)](https://codecov.io/gh/tismith/device-checkout-rs)
-
+device-checkout-rs
+==================
+[![Build Status](https://travis-ci.org/tismith/device-checkout-rs.svg?branch=master)](https://travis-ci.org/tismith/device-checkout-rs)
+[![codecov](https://codecov.io/gh/tismith/device-checkout-rs/branch/master/graph/badge.svg)](https://codecov.io/gh/tismith/device-checkout-rs)
 
 Reimplementation of https://github.com/tismith/deviceCheckout in rust. Basically complete now. The HTTP API endpoints could use some more breadth, but the form based web ui is functional.
 
-
 Since this is using `rocket` for the web framework, we need to use rust nightly, so we've pinned a working compiler using the rustc-toolchain file. Cargo build will pull down and install the correct compiler.
 
-We use `diesel-migrations` to automatically build and migrate the database. No need to see the database manually.
+We use `diesel-migrations` to automatically build and migrate the database. No need to seed the database manually.
 
 To run the application do:
 ```sh
 cargo run
 ```
 
-## We are using:
+We are using:
+-------------
 * `rocket` for the web framework
 * `diesel` as the database abstraction and orm
 * `serde` for json serialization/deserialization
