@@ -172,7 +172,7 @@ pub fn post_add_devices(
 ) -> Result<rocket_contrib::Template, failure::Error> {
     trace!("post_add_devices()");
 
-    let add_result = if let Ok(device_add) = device_add {
+    let mut add_result = if let Ok(device_add) = device_add {
         let device = device_add.get();
         database::insert_device(&*config, &*database, device)
             .context("Failed to add device")
@@ -180,6 +180,12 @@ pub fn post_add_devices(
     } else {
         Err(failure::err_msg("Failed to parse form data"))
     };
+
+    if let Ok(num_rows) = add_result {
+        if num_rows == 0 {
+            add_result = Err(failure::err_msg("Failed to update device"));
+        }
+    }
 
     let context = gen_device_context(&*config, &*database, &Some(add_result))?;
     Ok(rocket_contrib::Template::render("edit_devices", &context))
@@ -194,7 +200,7 @@ pub fn post_edit_devices(
 ) -> Result<rocket_contrib::Template, failure::Error> {
     trace!("post_edit_devices()");
 
-    let update_result = if let Ok(device_edit) = device_edit {
+    let mut update_result = if let Ok(device_edit) = device_edit {
         let device = device_edit.get();
         if device.save.is_some() {
             trace!("saving");
@@ -212,6 +218,12 @@ pub fn post_edit_devices(
     } else {
         Err(failure::err_msg("Failed to parse form data"))
     };
+
+    if let Ok(num_rows) = update_result {
+        if num_rows == 0 {
+            update_result = Err(failure::err_msg("Failed to update device"));
+        }
+    }
 
     let context = gen_device_context(&*config, &*database, &Some(update_result))?;
     Ok(rocket_contrib::Template::render("edit_devices", &context))
