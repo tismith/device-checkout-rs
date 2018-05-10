@@ -1,5 +1,7 @@
 #![cfg_attr(feature = "cargo-clippy", allow(print_literal))]
 
+use chrono;
+use chrono::Offset;
 use database;
 use failure;
 use failure::ResultExt;
@@ -73,6 +75,7 @@ struct PerDeviceContext<'a> {
     device: models::Device,
     button_string: &'a str,
     button_class: &'a str,
+    updated_at_local: String,
 }
 
 #[derive(Serialize, Default)]
@@ -93,10 +96,16 @@ fn format_device<'a>(device: models::Device) -> PerDeviceContext<'a> {
         models::ReservationStatus::Reserved => "btn-danger",
         _ => "btn-primary",
     };
+    let updated_at_local = chrono::DateTime::<chrono::Local>::from_utc(
+        device.updated_at,
+        chrono::Local::now().offset().fix(),
+    );
+    let updated_at_local = format!("{}", updated_at_local.format("%F %r"));
     PerDeviceContext {
         device,
         button_string,
         button_class,
+        updated_at_local,
     }
 }
 

@@ -22,6 +22,7 @@
 					<th>URL</th>
 					<th>Owner</th>
 					<th>Comments</th>
+					<th>Last Changed</th>
 					<th></th>
 				</tr>
 			</thead>
@@ -34,6 +35,7 @@
 					<td><a href="{{this.device.device_url}}">{{this.device.device_url}}</a></td>
 					<td><input type="text" name="device_owner" class="form-control" value="{{this.device.device_owner}}"></td>
 					<td><input type="text" name="comments" class="form-control" value="{{this.device.comments}}"></td>
+					<td>{{this.updated_at_local}}</td>
 					<td><input type="submit" class="btn {{this.button_class}}" value="{{this.button_string}}"></td>
 				</form>
 			</tr>
