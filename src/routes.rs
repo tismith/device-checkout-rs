@@ -181,10 +181,8 @@ pub fn post_add_devices(
         Err(failure::err_msg("Failed to parse form data"))
     };
 
-    if let Ok(num_rows) = add_result {
-        if num_rows == 0 {
-            add_result = Err(failure::err_msg("Failed to update device"));
-        }
+    if let Ok(0) = add_result {
+        add_result = Err(failure::err_msg("Failed to update device"));
     }
 
     let context = gen_device_context(&*config, &*database, &Some(add_result))?;
@@ -219,10 +217,8 @@ pub fn post_edit_devices(
         Err(failure::err_msg("Failed to parse form data"))
     };
 
-    if let Ok(num_rows) = update_result {
-        if num_rows == 0 {
-            update_result = Err(failure::err_msg("Failed to update device"));
-        }
+    if let Ok(0) = update_result {
+        update_result = Err(failure::err_msg("Failed to update device"));
     }
 
     let context = gen_device_context(&*config, &*database, &Some(update_result))?;
@@ -260,10 +256,8 @@ pub fn post_devices(
         Err(failure::err_msg("Failed to parse form data"))
     };
 
-    if let Ok(num_rows) = update_result {
-        if num_rows == 0 {
-            update_result = Err(failure::err_msg("Failed to update device"));
-        }
+    if let Ok(0) = update_result {
+        update_result = Err(failure::err_msg("Failed to update device"));
     }
 
     let context = gen_device_context(&*config, &*database, &Some(update_result))?;
