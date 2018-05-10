@@ -199,3 +199,50 @@ fn test_get_root() {
 
     assert_eq!(response.status(), rocket::http::Status::SeeOther);
 }
+
+#[test]
+#[ignore]
+fn test_reserve_already_reserved() {
+    let file = tempfile::NamedTempFile::new().expect("creating tempfile");
+    let mut config = utils::types::Settings::new();
+    config.database_url = file.path().to_string_lossy().to_owned().to_string();
+
+    database::run_migrations(&config).expect("running migrations");
+
+    let rocket = routes::rocket(config).expect("creating rocket instance");
+    let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
+
+    //reserve unit1
+    let mut response = client
+        .post("/devices")
+        .header(rocket::http::ContentType(rocket::http::MediaType::Form))
+        .body(r#"id=1&device_owner=Owner&comments=xyzzy&reservation_status=Available"#)
+        .dispatch();
+
+    assert_eq!(response.status(), rocket::http::Status::Ok);
+    let body = response.body_string().unwrap();
+
+    let dom = victoria_dom::DOM::new(&body);
+    let _ = dom.at(r#"form[name="unit1"] input[name="reservation_status"][value="Reserved"]"#)
+        .expect("failed to find reservation status");
+
+    //reserve unit2
+    let mut response = client
+        .post("/devices")
+        .header(rocket::http::ContentType(rocket::http::MediaType::Form))
+        .body(r#"id=1&device_owner=Owner2&comments=xyzzy&reservation_status=Available"#)
+        .dispatch();
+
+    assert_eq!(response.status(), rocket::http::Status::Ok);
+    let body = response.body_string().unwrap();
+
+    let dom = victoria_dom::DOM::new(&body);
+    let _ = dom.at(r#"form[name="unit1"] input[name="device_owner"][value="Owner"]"#)
+        .expect("failed to find owner");
+    assert!(
+        dom.at(r#"form[name="unit1"] input[name="device_owner"][value="Owner2"]"#)
+            .is_none()
+    );
+
+    assert_eq!(response.status(), rocket::http::Status::SeeOther);
+}
