@@ -244,9 +244,10 @@ pub fn post_devices(
             device.reservation_status = models::ReservationStatus::Available;
         }
 
-        //blank out the owner if we're returning it
+        //blank out the owner and comments if we're returning it
         if device.reservation_status == models::ReservationStatus::Available {
             device.device_owner = None;
+            device.comments = None;
         }
 
         database::update_device(&*config, &*database, &device, &current_reservation_status)
