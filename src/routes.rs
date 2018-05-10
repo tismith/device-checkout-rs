@@ -226,9 +226,10 @@ pub fn post_devices(
 ) -> Result<rocket_contrib::Template, failure::Error> {
     trace!("post_devices()");
 
-    let update_result = if let Ok(device_update) = device_update {
+    let mut update_result = if let Ok(device_update) = device_update {
         let mut device = device_update.into_inner();
         //toggle the reservation status
+        let current_reservation_status = device.reservation_status;
         if device.reservation_status == models::ReservationStatus::Available {
             device.reservation_status = models::ReservationStatus::Reserved;
         } else {
@@ -240,12 +241,18 @@ pub fn post_devices(
             device.device_owner = None;
         }
 
-        database::update_device(&*config, &*database, &device)
+        database::update_device(&*config, &*database, &device, &current_reservation_status)
             .context("Failed to save device")
             .map_err(|e| e.into())
     } else {
         Err(failure::err_msg("Failed to parse form data"))
     };
+
+    if let Ok(num_rows) = update_result {
+        if num_rows == 0 {
+            update_result = Err(failure::err_msg("Failed to update device"));
+        }
+    }
 
     let context = gen_device_context(&*config, &*database, &Some(update_result))?;
     Ok(rocket_contrib::Template::render("devices", &context))

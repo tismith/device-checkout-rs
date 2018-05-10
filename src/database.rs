@@ -54,8 +54,13 @@ pub fn update_device(
     _config: &utils::types::Settings,
     database: &DbConn,
     device_update: &models::DeviceUpdate,
+    expected_status: &models::ReservationStatus,
 ) -> Result<usize, failure::Error> {
-    Ok(diesel::update(devices.filter(id.eq(&device_update.id)))
+    let selector = devices.filter(
+        id.eq(&device_update.id)
+            .and(reservation_status.eq(expected_status)),
+    );
+    Ok(diesel::update(selector)
         .set((
             device_owner.eq(&device_update.device_owner),
             comments.eq(&device_update.comments),

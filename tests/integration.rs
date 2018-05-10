@@ -201,7 +201,6 @@ fn test_get_root() {
 }
 
 #[test]
-#[ignore]
 fn test_reserve_already_reserved() {
     let file = tempfile::NamedTempFile::new().expect("creating tempfile");
     let mut config = utils::types::Settings::new();
@@ -244,5 +243,5 @@ fn test_reserve_already_reserved() {
             .is_none()
     );
 
-    assert_eq!(response.status(), rocket::http::Status::SeeOther);
+    assert_eq!(response.status(), rocket::http::Status::Ok);
 }
