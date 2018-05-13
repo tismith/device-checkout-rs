@@ -1,4 +1,6 @@
 //reexport Timestamp, so other modules don't need to use stderrlog
+use failure;
+use std;
 pub use stderrlog::Timestamp;
 
 #[derive(Debug)]
@@ -29,5 +31,26 @@ impl Default for Settings {
             database_url: "devices.db".to_string(),
             port: 8000,
         }
+    }
+}
+
+pub struct ExitFailure(failure::Error);
+
+impl std::fmt::Debug for ExitFailure {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        use failure::Fail;
+        let mut fail: &Fail = self.0.cause();
+        write!(f, "{}", fail)?;
+        while let Some(cause) = fail.cause() {
+            write!(f, "\ncaused by: {}", cause)?;
+            fail = cause;
+        }
+        Ok(())
+    }
+}
+
+impl std::convert::From<failure::Error> for ExitFailure {
+    fn from(error: failure::Error) -> Self {
+        ExitFailure(error)
     }
 }
