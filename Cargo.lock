@@ -216,6 +216,7 @@ dependencies = [
  "diesel 1.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "diesel-derive-enum 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "diesel_migrations 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "exitfailure 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "failure 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "rocket 0.3.10 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -225,7 +226,7 @@ dependencies = [
  "serde_derive 1.0.50 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 1.0.17 (registry+https://github.com/rust-lang/crates.io-index)",
  "stderrlog 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "tempfile 3.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tempfile 3.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "victoria-dom 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -291,6 +292,14 @@ version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "backtrace 0.3.7 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "exitfailure"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "failure 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -941,7 +950,7 @@ dependencies = [
 
 [[package]]
 name = "tempfile"
-version = "3.0.1"
+version = "3.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "libc 0.2.40 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1212,6 +1221,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum dtoa 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)" = "09c3753c3db574d215cba4ea76018483895d7bff25a31b49ba45db21c48e50ab"
 "checksum environment 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "1f4b14e20978669064c33b4c1e0fb4083412e40fe56cbea2eae80fd7591503ee"
 "checksum error-chain 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)" = "ff511d5dc435d703f4971bc399647c9bc38e20cb41452e3b9feb4765419ed3f3"
+"checksum exitfailure 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "b9d10353f0bd76ba746e4f5339175d7fec826562684914611477a3f6098c834d"
 "checksum failure 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "934799b6c1de475a012a02dab0ace1ace43789ee4b99bcfbf1a2e3e8ced5de82"
 "checksum failure_derive 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "c7cdda555bb90c9bb67a3b670a0f42de8e73f5981524123ad8578aafec8ddb8b"
 "checksum fuchsia-zircon 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)" = "2e9763c69ebaae630ba35f74888db465e49e259ba1bc0eda7d06f4a067615d82"
@@ -1292,7 +1302,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum synom 0.11.3 (registry+https://github.com/rust-lang/crates.io-index)" = "a393066ed9010ebaed60b9eafa373d4b1baac186dd7e008555b0f702b51945b6"
 "checksum synstructure 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)" = "3a761d12e6d8dcb4dcf952a7a89b475e3a9d69e4a69307e01a470977642914bd"
 "checksum tempdir 0.3.7 (registry+https://github.com/rust-lang/crates.io-index)" = "15f2b5fb00ccdf689e0149d1b1b3c03fead81c2b37735d812fa8bddbbf41b6d8"
-"checksum tempfile 3.0.1 (registry+https://github.com/rust-lang/crates.io-index)" = "8cddbd26c5686ece823b507f304c8f188daef548b4cb753512d929ce478a093c"
+"checksum tempfile 3.0.2 (registry+https://github.com/rust-lang/crates.io-index)" = "47776f63b85777d984a50ce49d6b9e58826b6a3766a449fc95bc66cd5663c15b"
 "checksum termcolor 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)" = "adc4587ead41bf016f11af03e55a624c06568b5a19db4e90fde573d805074f83"
 "checksum termion 1.5.1 (registry+https://github.com/rust-lang/crates.io-index)" = "689a3bdfaab439fd92bc87df5c4c78417d3cbe537487274e9b0b2dce76e92096"
 "checksum textwrap 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)" = "c0b59b6b4b44d867f1370ef1bd91bfb262bf07bf0ae65c202ea2fbc16153b693"
