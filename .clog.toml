@@ -1,4 +1,4 @@
 [clog]
 repository = "https://github.com/tismith/device-checkout-rs"
-subtitle = "Device Checkout"
 changelog = "CHANGELOG.md"
+from-latest-tag = true
