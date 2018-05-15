@@ -248,3 +248,47 @@ fn test_reserve_already_reserved() {
 
     assert_eq!(response.status(), rocket::http::Status::Ok);
 }
+
+#[test]
+fn test_returning_clears_fields() {
+    let file = tempfile::NamedTempFile::new().expect("creating tempfile");
+    let mut config = utils::types::Settings::new();
+    config.database_url = file.path().to_string_lossy().to_owned().to_string();
+
+    database::run_migrations(&config).expect("running migrations");
+
+    let rocket = routes::rocket(config).expect("creating rocket instance");
+    let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
+
+    //reserve unit1
+    let response = client
+        .post("/devices")
+        .header(rocket::http::ContentType(rocket::http::MediaType::Form))
+        .body(r#"id=1&device_owner=Owner&comments=xyzzy&reservation_status=Available"#)
+        .dispatch();
+
+    assert_eq!(response.status(), rocket::http::Status::Ok);
+
+    //return unit1
+    let mut response = client
+        .post("/devices")
+        .header(rocket::http::ContentType(rocket::http::MediaType::Form))
+        .body(r#"id=2&reservation_status=Reserved"#)
+        .dispatch();
+
+    assert_eq!(response.status(), rocket::http::Status::Ok);
+    let body = response.body_string().unwrap();
+
+    let dom = victoria_dom::DOM::new(&body);
+    //test that the old values for the reservation are gone
+    dom.at(r#"form[name="unit1"] input[name="device_owner"][value="Owner"]"#)
+        .is_none();
+    dom.at(r#"form[name="unit1"] input[name="comments"][value="xyzzy"]"#)
+        .is_none();
+
+    //but that they still exist
+    let _ = dom.at(r#"form[name="unit1"] input[name="device_owner"][value]"#)
+        .expect("failed to find empty owner");
+    let _ = dom.at(r#"form[name="unit1"] input[name="comments"][value]"#)
+        .expect("failed to find empty comments");
+}
