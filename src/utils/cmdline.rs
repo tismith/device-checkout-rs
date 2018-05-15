@@ -140,4 +140,13 @@ mod tests {
             _ => panic!("unexpected parse"),
         }
     }
+
+    #[test]
+    fn test_bogus_timestamps() {
+        assert!(
+            matcher()
+                .get_matches_from_safe(vec!["", "-t", "bogus"])
+                .is_err()
+        );
+    }
 }
