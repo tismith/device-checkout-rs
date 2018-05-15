@@ -16,7 +16,9 @@ fn test_api_get_device() {
     let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
     let mut response = client.get("/api/devices/unit1").dispatch();
     assert_eq!(response.status(), rocket::http::Status::Ok);
-    assert!(response.body_string().unwrap().contains("http://unit1"));
+    let body = response.body_string().unwrap();
+    let v: serde_json::Value = serde_json::from_str(&body).unwrap();
+    assert_eq!(v["device_url"], "http://unit1");
 
     let response = client.get("/api/devices/some_unknown_device").dispatch();
     assert_eq!(response.status(), rocket::http::Status::NotFound);
@@ -35,8 +37,9 @@ fn test_api_get_devices() {
     let mut response = client.get("/api/devices").dispatch();
     assert_eq!(response.status(), rocket::http::Status::Ok);
     let body = response.body_string().unwrap();
-    assert!(body.contains("http://unit1"));
-    assert!(body.contains("http://unit2"));
+    let v: serde_json::Value = serde_json::from_str(&body).unwrap();
+    assert_eq!(v[0]["device_url"], "http://unit1");
+    assert_eq!(v[1]["device_url"], "http://unit2");
 }
 
 #[test]
