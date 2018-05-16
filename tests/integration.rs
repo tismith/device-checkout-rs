@@ -273,7 +273,7 @@ fn test_returning_clears_fields() {
     let mut response = client
         .post("/devices")
         .header(rocket::http::ContentType(rocket::http::MediaType::Form))
-        .body(r#"id=2&reservation_status=Reserved"#)
+        .body(r#"id=1&reservation_status=Reserved"#)
         .dispatch();
 
     assert_eq!(response.status(), rocket::http::Status::Ok);
@@ -281,10 +281,14 @@ fn test_returning_clears_fields() {
 
     let dom = victoria_dom::DOM::new(&body);
     //test that the old values for the reservation are gone
-    dom.at(r#"form[name="unit1"] input[name="device_owner"][value="Owner"]"#)
-        .is_none();
-    dom.at(r#"form[name="unit1"] input[name="comments"][value="xyzzy"]"#)
-        .is_none();
+    assert!(
+        dom.at(r#"form[name="unit1"] input[name="device_owner"][value="Owner"]"#)
+            .is_none()
+    );
+    assert!(
+        dom.at(r#"form[name="unit1"] input[name="comments"][value="xyzzy"]"#)
+            .is_none()
+    );
 
     //but that they still exist
     let _ = dom.at(r#"form[name="unit1"] input[name="device_owner"][value]"#)
