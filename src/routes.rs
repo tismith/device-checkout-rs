@@ -4,7 +4,6 @@ use chrono;
 use chrono::Offset;
 use database;
 use failure;
-use failure::ResultExt;
 use models;
 use pool;
 use rocket;
@@ -86,7 +85,7 @@ struct DevicesContext<'a> {
     success_message: Option<std::borrow::Cow<'a, str>>,
 }
 
-fn format_device<'a>(device: models::Device) -> PerDeviceContext {
+fn format_device(device: models::Device) -> PerDeviceContext {
     let is_reserved = device.reservation_status == models::ReservationStatus::Reserved;
     let updated_at_local = chrono::DateTime::<chrono::Local>::from_utc(
         device.updated_at,
@@ -100,21 +99,21 @@ fn format_device<'a>(device: models::Device) -> PerDeviceContext {
     }
 }
 
-fn gen_device_context<'a, T>(
+fn gen_device_context<'a>(
     config: &utils::types::Settings,
     database: &database::DbConn,
-    db_result: &Option<Result<T, failure::Error>>,
+    status_message: &'a Option<rocket::request::FlashMessage>,
 ) -> Result<DevicesContext<'a>, failure::Error> {
     trace!("gen_device_context");
 
     let mut success_message = None;
     let mut error_message = None;
 
-    if let Some(db_result) = db_result {
-        if db_result.is_ok() {
-            success_message = Some("Device updated successufully".into());
-        } else if let Err(e) = db_result {
-            error_message = Some(format!("{}", e).into());
+    if let &Some(ref status_message) = status_message {
+        if status_message.name() == "success" {
+            success_message = Some(status_message.msg().into());
+        } else {
+            error_message = Some(status_message.msg().into());
         }
     }
 
@@ -135,10 +134,11 @@ fn gen_device_context<'a, T>(
 pub fn get_devices(
     config: rocket::State<utils::types::Settings>,
     database: pool::DbConn,
+    status_message: Option<rocket::request::FlashMessage>,
 ) -> Result<rocket_contrib::Template, failure::Error> {
     trace!("get_devices()");
 
-    let context = gen_device_context::<usize>(&*config, &*database, &None)?;
+    let context = gen_device_context(&*config, &*database, &status_message)?;
     Ok(rocket_contrib::Template::render("devices", &context))
 }
 
@@ -147,10 +147,11 @@ pub fn get_devices(
 pub fn get_edit_devices(
     config: rocket::State<utils::types::Settings>,
     database: pool::DbConn,
+    status_message: Option<rocket::request::FlashMessage>,
 ) -> Result<rocket_contrib::Template, failure::Error> {
     trace!("get_edit_devices()");
 
-    let context = gen_device_context::<usize>(&*config, &*database, &None)?;
+    let context = gen_device_context(&*config, &*database, &status_message)?;
     Ok(rocket_contrib::Template::render("edit_devices", &context))
 }
 
@@ -160,24 +161,29 @@ pub fn post_add_devices(
     config: rocket::State<utils::types::Settings>,
     database: pool::DbConn,
     device_add: Result<rocket::request::LenientForm<models::DeviceInsert>, Option<String>>,
-) -> Result<rocket_contrib::Template, failure::Error> {
+) -> rocket::response::Flash<rocket::response::Redirect> {
     trace!("post_add_devices()");
 
-    let mut add_result = if let Ok(device_add) = device_add {
+    let add_result = if let Ok(device_add) = device_add {
         let device = device_add.get();
         database::insert_device(&*config, &*database, device)
-            .context("Failed to add device")
-            .map_err(|e| e.into())
     } else {
-        Err(failure::err_msg("Failed to parse form data"))
+        return rocket::response::Flash::error(
+            rocket::response::Redirect::to("/editDevices"),
+            "Failed to parse form data",
+        );
     };
 
-    if let Ok(0) = add_result {
-        add_result = Err(failure::err_msg("Failed to update device"));
-    }
-
-    let context = gen_device_context(&*config, &*database, &Some(add_result))?;
-    Ok(rocket_contrib::Template::render("edit_devices", &context))
+    return match add_result {
+        Ok(0) | Err(_) => rocket::response::Flash::error(
+            rocket::response::Redirect::to("/editDevices"),
+            "Failed to add device",
+        ),
+        _ => rocket::response::Flash::success(
+            rocket::response::Redirect::to("/editDevices"),
+            "Successfully added device",
+        ),
+    };
 }
 
 #[cfg_attr(feature = "cargo-clippy", allow(needless_pass_by_value))]
@@ -186,34 +192,40 @@ pub fn post_edit_devices(
     config: rocket::State<utils::types::Settings>,
     database: pool::DbConn,
     device_edit: Result<rocket::request::Form<models::DeviceEdit>, Option<String>>,
-) -> Result<rocket_contrib::Template, failure::Error> {
+) -> rocket::response::Flash<rocket::response::Redirect> {
     trace!("post_edit_devices()");
 
-    let mut update_result = if let Ok(device_edit) = device_edit {
+    let update_result: Result<_, failure::Error> = if let Ok(device_edit) = device_edit {
         let device = device_edit.get();
         if device.save.is_some() {
             trace!("saving");
             database::edit_device(&*config, &*database, &device)
-                .context("Failed to save device")
-                .map_err(|e| e.into())
         } else if device.delete.is_some() {
             trace!("deleting");
             database::delete_device(&*config, &*database, &device)
-                .context("Failed to delete device")
-                .map_err(|e| e.into())
         } else {
-            Err(failure::err_msg("Unknown form action"))
+            return rocket::response::Flash::error(
+                rocket::response::Redirect::to("/editDevices"),
+                "Unknown form action",
+            );
         }
     } else {
-        Err(failure::err_msg("Failed to parse form data"))
+        return rocket::response::Flash::error(
+            rocket::response::Redirect::to("/editDevices"),
+            "Failed to parse form data",
+        );
     };
 
-    if let Ok(0) = update_result {
-        update_result = Err(failure::err_msg("Failed to update device"));
-    }
-
-    let context = gen_device_context(&*config, &*database, &Some(update_result))?;
-    Ok(rocket_contrib::Template::render("edit_devices", &context))
+    return match update_result {
+        Ok(0) | Err(_) => rocket::response::Flash::error(
+            rocket::response::Redirect::to("/editDevices"),
+            "Failed to update device",
+        ),
+        _ => rocket::response::Flash::success(
+            rocket::response::Redirect::to("/editDevices"),
+            "Successfully updated device",
+        ),
+    };
 }
 
 #[cfg_attr(feature = "cargo-clippy", allow(needless_pass_by_value))]
@@ -222,10 +234,10 @@ pub fn post_devices(
     config: rocket::State<utils::types::Settings>,
     database: pool::DbConn,
     device_update: Result<rocket::request::Form<models::DeviceUpdate>, Option<String>>,
-) -> Result<rocket_contrib::Template, failure::Error> {
+) -> rocket::response::Flash<rocket::response::Redirect> {
     trace!("post_devices()");
 
-    let mut update_result = if let Ok(device_update) = device_update {
+    let update_result = if let Ok(device_update) = device_update {
         let mut device = device_update.into_inner();
         //toggle the reservation status
         let current_reservation_status = device.reservation_status;
@@ -242,18 +254,23 @@ pub fn post_devices(
         }
 
         database::update_device(&*config, &*database, &device, &current_reservation_status)
-            .context("Failed to save device")
-            .map_err(|e| e.into())
     } else {
-        Err(failure::err_msg("Failed to parse form data"))
+        return rocket::response::Flash::error(
+            rocket::response::Redirect::to("/devices"),
+            "Failed to parse form data",
+        );
     };
 
-    if let Ok(0) = update_result {
-        update_result = Err(failure::err_msg("Failed to update device"));
-    }
-
-    let context = gen_device_context(&*config, &*database, &Some(update_result))?;
-    Ok(rocket_contrib::Template::render("devices", &context))
+    return match update_result {
+        Ok(0) | Err(_) => rocket::response::Flash::error(
+            rocket::response::Redirect::to("/devices"),
+            "Failed to update device",
+        ),
+        _ => rocket::response::Flash::success(
+            rocket::response::Redirect::to("/devices"),
+            "Successfully updated device",
+        ),
+    };
 }
 
 pub fn rocket(config: utils::types::Settings) -> Result<rocket::Rocket, failure::Error> {
