@@ -71,31 +71,23 @@ pub fn api_get_devices(
 }
 
 #[derive(Serialize)]
-struct PerDeviceContext<'a> {
+struct PerDeviceContext {
     device: models::Device,
-    button_string: &'a str,
-    button_class: &'a str,
+    is_reserved: bool,
     updated_at_local: String,
 }
 
 #[derive(Serialize, Default)]
 struct DevicesContext<'a> {
-    devices: Vec<PerDeviceContext<'a>>,
+    devices: Vec<PerDeviceContext>,
     #[serde(skip_serializing_if = "Option::is_none")]
     error_message: Option<std::borrow::Cow<'a, str>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     success_message: Option<std::borrow::Cow<'a, str>>,
 }
 
-fn format_device<'a>(device: models::Device) -> PerDeviceContext<'a> {
-    let button_string = match device.reservation_status {
-        models::ReservationStatus::Reserved => "RETURN",
-        _ => "CLAIM",
-    };
-    let button_class = match device.reservation_status {
-        models::ReservationStatus::Reserved => "btn-danger",
-        _ => "btn-primary",
-    };
+fn format_device<'a>(device: models::Device) -> PerDeviceContext {
+    let is_reserved = device.reservation_status == models::ReservationStatus::Reserved;
     let updated_at_local = chrono::DateTime::<chrono::Local>::from_utc(
         device.updated_at,
         chrono::Local::now().offset().fix(),
@@ -103,8 +95,7 @@ fn format_device<'a>(device: models::Device) -> PerDeviceContext<'a> {
     let updated_at_local = format!("{}", updated_at_local.format("%F %r"));
     PerDeviceContext {
         device,
-        button_string,
-        button_class,
+        is_reserved,
         updated_at_local,
     }
 }

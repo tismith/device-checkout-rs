@@ -36,7 +36,13 @@
 					<td><input type="text" name="device_owner" class="form-control" value="{{this.device.device_owner}}"></td>
 					<td><input type="text" name="comments" class="form-control" value="{{this.device.comments}}"></td>
 					<td>{{this.updated_at_local}}</td>
-					<td><input type="submit" class="btn {{this.button_class}}" value="{{this.button_string}}"></td>
+					<td>
+						{{#if this.is_reserved}}
+						<input type="submit" class="btn btn-danger" value="RETURN">
+						{{else}}
+						<input type="submit" class="btn btn-primary" value="CLAIM">
+						{{/if}}
+					</td>
 				</form>
 			</tr>
 			{{/each}}
