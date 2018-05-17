@@ -103,6 +103,11 @@ fn test_html_post_devices() {
     let body = response.body_string().unwrap();
 
     let dom = victoria_dom::DOM::new(&body);
+
+    let _ = dom.at(r#"#success_message"#)
+        .expect("failed to find success message");
+    assert!(dom.at(r#"#error_message"#).is_none());
+
     let _ = dom.at(r#"form[name="unit1"] input[name="device_owner"][value="Owner"]"#)
         .expect("failed to find owner");
 
@@ -134,6 +139,10 @@ fn test_html_edit_devices() {
     let body = response.body_string().unwrap();
 
     let dom = victoria_dom::DOM::new(&body);
+    let _ = dom.at(r#"#success_message"#)
+        .expect("failed to find success message");
+    assert!(dom.at(r#"#error_message"#).is_none());
+
     let _ = dom.at(r#"form[name="testunit"] input[name="device_url"][value="testurl"]"#)
         .expect("failed to find edited device");
 }
@@ -159,6 +168,11 @@ fn test_html_edit_devices_delete() {
     let body = response.body_string().unwrap();
 
     let dom = victoria_dom::DOM::new(&body);
+
+    let _ = dom.at(r#"#success_message"#)
+        .expect("failed to find success message");
+    assert!(dom.at(r#"#error_message"#).is_none());
+
     assert!(dom.at(r#"form[name="unit1"]"#).is_none());
 }
 
@@ -183,6 +197,11 @@ fn test_html_add_devices() {
     let body = response.body_string().unwrap();
 
     let dom = victoria_dom::DOM::new(&body);
+
+    let _ = dom.at(r#"#success_message"#)
+        .expect("failed to find success message");
+    assert!(dom.at(r#"#error_message"#).is_none());
+
     let _ = dom.at(r#"form[name="testunit"] input[name="device_url"][value="testurl"]"#)
         .expect("failed to find added device");
 }
@@ -239,6 +258,11 @@ fn test_reserve_already_reserved() {
     let body = response.body_string().unwrap();
 
     let dom = victoria_dom::DOM::new(&body);
+
+    let _ = dom.at(r#"#error_message"#)
+        .expect("failed to find error message");
+    assert!(dom.at(r#"#success_message"#).is_none());
+
     let _ = dom.at(r#"form[name="unit1"] input[name="device_owner"][value="Owner"]"#)
         .expect("failed to find owner");
     assert!(
@@ -280,6 +304,11 @@ fn test_returning_clears_fields() {
     let body = response.body_string().unwrap();
 
     let dom = victoria_dom::DOM::new(&body);
+
+    let _ = dom.at(r#"#success_message"#)
+        .expect("failed to find success message");
+    assert!(dom.at(r#"#error_message"#).is_none());
+
     //test that the old values for the reservation are gone
     assert!(
         dom.at(r#"form[name="unit1"] input[name="device_owner"][value="Owner"]"#)

@@ -6,12 +6,12 @@
 	<div class="container">
 		<h1>Edit Devices</h1>
 		{{#if success_message}}
-		<div class="alert alert-success">
+		<div class="alert alert-success" id="success_message">
 			<strong>Success:</strong> {{success_message}}
 		</div>
 		{{/if}}
 		{{#if error_message}}
-		<div class="alert alert-danger">
+		<div class="alert alert-danger" id="error_message">
 			<strong>Error:</strong> {{error_message}}
 		</div>
 		{{/if}}
