@@ -104,6 +104,26 @@ fn get_redirect(response: &rocket::local::LocalResponse) -> Option<String> {
     }
 }
 
+fn follow_redirect<'a>(
+    client: &'a rocket::local::Client,
+    response: &rocket::local::LocalResponse,
+) -> Option<rocket::local::LocalResponse<'a>> {
+    let cookies = get_cookies(&response);
+    let location = match get_redirect(&response) {
+        Some(l) => l,
+        None => return None,
+    };
+
+    //manually follow the redirection with a new client
+    let mut request = client.get(location);
+
+    for cookie in cookies {
+        request = request.cookie(cookie);
+    }
+
+    Some(request.dispatch())
+}
+
 #[test]
 fn test_html_post_devices() {
     let file = tempfile::NamedTempFile::new().expect("creating tempfile");
@@ -121,18 +141,7 @@ fn test_html_post_devices() {
         .body(r#"id=1&device_owner=Owner&comments=xyzzy&reservation_status=Available"#)
         .dispatch();
 
-    assert_eq!(response.status(), rocket::http::Status::SeeOther);
-    let cookies = get_cookies(&response);
-    let location = get_redirect(&response).unwrap();
-
-    //manually follow the redirection with a new client
-    let mut request = client.get(location);
-
-    for cookie in cookies {
-        request = request.cookie(cookie);
-    }
-
-    let mut response = request.dispatch();
+    let mut response = follow_redirect(&client, &response).unwrap();
     assert_eq!(response.status(), rocket::http::Status::Ok);
 
     let body = response.body_string().unwrap();
@@ -169,17 +178,7 @@ fn test_html_edit_devices() {
         .body(r#"id=1&device_name=testunit&device_url=testurl&save=SAVE"#)
         .dispatch();
 
-    let location = get_redirect(&response).unwrap();
-    let cookies = get_cookies(&response);
-
-    //manually follow the redirection with a new client
-    let mut request = client.get(location);
-
-    for cookie in cookies {
-        request = request.cookie(cookie);
-    }
-
-    let mut response = request.dispatch();
+    let mut response = follow_redirect(&client, &response).unwrap();
     assert_eq!(response.status(), rocket::http::Status::Ok);
     let body = response.body_string().unwrap();
 
@@ -209,17 +208,7 @@ fn test_html_edit_devices_delete() {
         .body(r#"id=1&device_name=testunit&device_url=testurl&delete=DELETE"#)
         .dispatch();
 
-    let cookies = get_cookies(&response);
-    let location = get_redirect(&response).unwrap();
-
-    //manually follow the redirection with a new client
-    let mut request = client.get(location);
-
-    for cookie in cookies {
-        request = request.cookie(cookie);
-    }
-
-    let mut response = request.dispatch();
+    let mut response = follow_redirect(&client, &response).unwrap();
     assert_eq!(response.status(), rocket::http::Status::Ok);
     let body = response.body_string().unwrap();
 
@@ -249,17 +238,7 @@ fn test_html_add_devices() {
         .body(r#"device_name=testunit&device_url=testurl&add=ADD"#)
         .dispatch();
 
-    let cookies = get_cookies(&response);
-    let location = get_redirect(&response).unwrap();
-
-    //manually follow the redirection with a new client
-    let mut request = client.get(location);
-
-    for cookie in cookies {
-        request = request.cookie(cookie);
-    }
-
-    let mut response = request.dispatch();
+    let mut response = follow_redirect(&client, &response).unwrap();
     assert_eq!(response.status(), rocket::http::Status::Ok);
     let body = response.body_string().unwrap();
 
@@ -307,17 +286,7 @@ fn test_reserve_already_reserved() {
         .body(r#"id=1&device_owner=Owner&comments=xyzzy&reservation_status=Available"#)
         .dispatch();
 
-    let cookies = get_cookies(&response);
-    let location = get_redirect(&response).unwrap();
-
-    //manually follow the redirection with a new client
-    let mut request = client.get(location);
-
-    for cookie in cookies {
-        request = request.cookie(cookie);
-    }
-
-    let mut response = request.dispatch();
+    let mut response = follow_redirect(&client, &response).unwrap();
     assert_eq!(response.status(), rocket::http::Status::Ok);
     let body = response.body_string().unwrap();
 
@@ -332,16 +301,8 @@ fn test_reserve_already_reserved() {
         .body(r#"id=1&device_owner=Owner2&comments=xyzzy&reservation_status=Available"#)
         .dispatch();
 
-    let cookies = get_cookies(&response);
-    let location = get_redirect(&response).unwrap();
+    let mut response = follow_redirect(&client, &response).unwrap();
 
-    //manually follow the redirection with a new client
-    let mut request = client.get(location);
-
-    for cookie in cookies {
-        request = request.cookie(cookie);
-    }
-    let mut response = request.dispatch();
     assert_eq!(response.status(), rocket::http::Status::Ok);
     let body = response.body_string().unwrap();
 
@@ -379,17 +340,7 @@ fn test_returning_clears_fields() {
         .body(r#"id=1&device_owner=Owner&comments=xyzzy&reservation_status=Available"#)
         .dispatch();
 
-    let location = get_redirect(&response).unwrap();
-    let cookies = get_cookies(&response);
-
-    //manually follow the redirection with a new client
-    let mut request = client.get(location);
-
-    for cookie in cookies {
-        request = request.cookie(cookie);
-    }
-
-    let response = request.dispatch();
+    let response = follow_redirect(&client, &response).unwrap();
     assert_eq!(response.status(), rocket::http::Status::Ok);
 
     //return unit1
@@ -399,17 +350,7 @@ fn test_returning_clears_fields() {
         .body(r#"id=1&reservation_status=Reserved"#)
         .dispatch();
 
-    let location = get_redirect(&response).unwrap();
-    let cookies = get_cookies(&response);
-
-    //manually follow the redirection with a new client
-    let mut request = client.get(location);
-
-    for cookie in cookies {
-        request = request.cookie(cookie);
-    }
-
-    let mut response = request.dispatch();
+    let mut response = follow_redirect(&client, &response).unwrap();
     assert_eq!(response.status(), rocket::http::Status::Ok);
     let body = response.body_string().unwrap();
 
