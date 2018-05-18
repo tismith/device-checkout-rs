@@ -90,18 +90,45 @@ fn test_html_post_devices() {
 
     database::run_migrations(&config).expect("running migrations");
 
-    let rocket = routes::rocket(config).expect("creating rocket instance");
+    let mut cookies;
+    let location;
+    let rocket = routes::rocket(config.clone()).expect("creating rocket instance");
     let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
 
-    let mut response = client
+    let response = client
         .post("/devices")
         .header(rocket::http::ContentType(rocket::http::MediaType::Form))
         .body(r#"id=1&device_owner=Owner&comments=xyzzy&reservation_status=Available"#)
         .dispatch();
 
-    assert_eq!(response.status(), rocket::http::Status::Ok);
-    let body = response.body_string().unwrap();
+    assert_eq!(response.status(), rocket::http::Status::SeeOther);
 
+    cookies = Vec::new();
+    for header in response.headers().get("Set-Cookie") {
+        if let Ok(cookie) = rocket::http::Cookie::parse_encoded(header) {
+            cookies.push(cookie.into_owned());
+        }
+    }
+    location = response
+        .headers()
+        .get("Location")
+        .next()
+        .unwrap()
+        .to_string();
+
+    //manually follow the redirection with a new client
+    let rocket = routes::rocket(config).expect("creating rocket instance");
+    let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
+    let mut request = client.get(location);
+
+    for cookie in cookies {
+        request = request.cookie(cookie);
+    }
+
+    let mut response = request.dispatch();
+    assert_eq!(response.status(), rocket::http::Status::Ok);
+
+    let body = response.body_string().unwrap();
     let dom = victoria_dom::DOM::new(&body);
 
     let _ = dom.at(r#"#success_message"#)
@@ -126,15 +153,42 @@ fn test_html_edit_devices() {
 
     database::run_migrations(&config).expect("running migrations");
 
-    let rocket = routes::rocket(config).expect("creating rocket instance");
+    let mut cookies;
+    let location;
+    let rocket = routes::rocket(config.clone()).expect("creating rocket instance");
     let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
 
-    let mut response = client
+    let response = client
         .post("/editDevices")
         .header(rocket::http::ContentType(rocket::http::MediaType::Form))
         .body(r#"id=1&device_name=testunit&device_url=testurl&save=SAVE"#)
         .dispatch();
 
+    assert_eq!(response.status(), rocket::http::Status::SeeOther);
+
+    cookies = Vec::new();
+    for header in response.headers().get("Set-Cookie") {
+        if let Ok(cookie) = rocket::http::Cookie::parse_encoded(header) {
+            cookies.push(cookie.into_owned());
+        }
+    }
+    location = response
+        .headers()
+        .get("Location")
+        .next()
+        .unwrap()
+        .to_string();
+
+    //manually follow the redirection with a new client
+    let rocket = routes::rocket(config).expect("creating rocket instance");
+    let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
+    let mut request = client.get(location);
+
+    for cookie in cookies {
+        request = request.cookie(cookie);
+    }
+
+    let mut response = request.dispatch();
     assert_eq!(response.status(), rocket::http::Status::Ok);
     let body = response.body_string().unwrap();
 
@@ -155,15 +209,42 @@ fn test_html_edit_devices_delete() {
 
     database::run_migrations(&config).expect("running migrations");
 
-    let rocket = routes::rocket(config).expect("creating rocket instance");
+    let mut cookies;
+    let location;
+    let rocket = routes::rocket(config.clone()).expect("creating rocket instance");
     let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
 
-    let mut response = client
+    let response = client
         .post("/editDevices")
         .header(rocket::http::ContentType(rocket::http::MediaType::Form))
         .body(r#"id=1&device_name=testunit&device_url=testurl&delete=DELETE"#)
         .dispatch();
 
+    assert_eq!(response.status(), rocket::http::Status::SeeOther);
+
+    cookies = Vec::new();
+    for header in response.headers().get("Set-Cookie") {
+        if let Ok(cookie) = rocket::http::Cookie::parse_encoded(header) {
+            cookies.push(cookie.into_owned());
+        }
+    }
+    location = response
+        .headers()
+        .get("Location")
+        .next()
+        .unwrap()
+        .to_string();
+
+    //manually follow the redirection with a new client
+    let rocket = routes::rocket(config).expect("creating rocket instance");
+    let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
+    let mut request = client.get(location);
+
+    for cookie in cookies {
+        request = request.cookie(cookie);
+    }
+
+    let mut response = request.dispatch();
     assert_eq!(response.status(), rocket::http::Status::Ok);
     let body = response.body_string().unwrap();
 
@@ -184,15 +265,42 @@ fn test_html_add_devices() {
 
     database::run_migrations(&config).expect("running migrations");
 
-    let rocket = routes::rocket(config).expect("creating rocket instance");
+    let mut cookies;
+    let location;
+    let rocket = routes::rocket(config.clone()).expect("creating rocket instance");
     let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
 
-    let mut response = client
+    let response = client
         .post("/addDevices")
         .header(rocket::http::ContentType(rocket::http::MediaType::Form))
         .body(r#"device_name=testunit&device_url=testurl&add=ADD"#)
         .dispatch();
 
+    assert_eq!(response.status(), rocket::http::Status::SeeOther);
+
+    cookies = Vec::new();
+    for header in response.headers().get("Set-Cookie") {
+        if let Ok(cookie) = rocket::http::Cookie::parse_encoded(header) {
+            cookies.push(cookie.into_owned());
+        }
+    }
+    location = response
+        .headers()
+        .get("Location")
+        .next()
+        .unwrap()
+        .to_string();
+
+    //manually follow the redirection with a new client
+    let rocket = routes::rocket(config).expect("creating rocket instance");
+    let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
+    let mut request = client.get(location);
+
+    for cookie in cookies {
+        request = request.cookie(cookie);
+    }
+
+    let mut response = request.dispatch();
     assert_eq!(response.status(), rocket::http::Status::Ok);
     let body = response.body_string().unwrap();
 
@@ -230,16 +338,43 @@ fn test_reserve_already_reserved() {
 
     database::run_migrations(&config).expect("running migrations");
 
-    let rocket = routes::rocket(config).expect("creating rocket instance");
+    let mut cookies;
+    let mut location;
+    let rocket = routes::rocket(config.clone()).expect("creating rocket instance");
     let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
 
     //reserve unit1
-    let mut response = client
+    let response = client
         .post("/devices")
         .header(rocket::http::ContentType(rocket::http::MediaType::Form))
         .body(r#"id=1&device_owner=Owner&comments=xyzzy&reservation_status=Available"#)
         .dispatch();
 
+    assert_eq!(response.status(), rocket::http::Status::SeeOther);
+
+    cookies = Vec::new();
+    for header in response.headers().get("Set-Cookie") {
+        if let Ok(cookie) = rocket::http::Cookie::parse_encoded(header) {
+            cookies.push(cookie.into_owned());
+        }
+    }
+    location = response
+        .headers()
+        .get("Location")
+        .next()
+        .unwrap()
+        .to_string();
+
+    //manually follow the redirection with a new client
+    let rocket = routes::rocket(config.clone()).expect("creating rocket instance");
+    let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
+    let mut request = client.get(location);
+
+    for cookie in cookies {
+        request = request.cookie(cookie);
+    }
+
+    let mut response = request.dispatch();
     assert_eq!(response.status(), rocket::http::Status::Ok);
     let body = response.body_string().unwrap();
 
@@ -248,12 +383,36 @@ fn test_reserve_already_reserved() {
         .expect("failed to find reservation status");
 
     //reserve unit2
-    let mut response = client
+    let response = client
         .post("/devices")
         .header(rocket::http::ContentType(rocket::http::MediaType::Form))
         .body(r#"id=1&device_owner=Owner2&comments=xyzzy&reservation_status=Available"#)
         .dispatch();
 
+    assert_eq!(response.status(), rocket::http::Status::SeeOther);
+
+    cookies = Vec::new();
+    for header in response.headers().get("Set-Cookie") {
+        if let Ok(cookie) = rocket::http::Cookie::parse_encoded(header) {
+            cookies.push(cookie.into_owned());
+        }
+    }
+    location = response
+        .headers()
+        .get("Location")
+        .next()
+        .unwrap()
+        .to_string();
+
+    //manually follow the redirection with a new client
+    let rocket = routes::rocket(config).expect("creating rocket instance");
+    let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
+    let mut request = client.get(location);
+
+    for cookie in cookies {
+        request = request.cookie(cookie);
+    }
+    let mut response = request.dispatch();
     assert_eq!(response.status(), rocket::http::Status::Ok);
     let body = response.body_string().unwrap();
 
@@ -281,7 +440,9 @@ fn test_returning_clears_fields() {
 
     database::run_migrations(&config).expect("running migrations");
 
-    let rocket = routes::rocket(config).expect("creating rocket instance");
+    let mut cookies;
+    let mut location;
+    let rocket = routes::rocket(config.clone()).expect("creating rocket instance");
     let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
 
     //reserve unit1
@@ -291,15 +452,65 @@ fn test_returning_clears_fields() {
         .body(r#"id=1&device_owner=Owner&comments=xyzzy&reservation_status=Available"#)
         .dispatch();
 
+    assert_eq!(response.status(), rocket::http::Status::SeeOther);
+
+    cookies = Vec::new();
+    for header in response.headers().get("Set-Cookie") {
+        if let Ok(cookie) = rocket::http::Cookie::parse_encoded(header) {
+            cookies.push(cookie.into_owned());
+        }
+    }
+    location = response
+        .headers()
+        .get("Location")
+        .next()
+        .unwrap()
+        .to_string();
+
+    //manually follow the redirection with a new client
+    let rocket = routes::rocket(config.clone()).expect("creating rocket instance");
+    let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
+    let mut request = client.get(location);
+
+    for cookie in cookies {
+        request = request.cookie(cookie);
+    }
+
+    let response = request.dispatch();
     assert_eq!(response.status(), rocket::http::Status::Ok);
 
     //return unit1
-    let mut response = client
+    let response = client
         .post("/devices")
         .header(rocket::http::ContentType(rocket::http::MediaType::Form))
         .body(r#"id=1&reservation_status=Reserved"#)
         .dispatch();
 
+    assert_eq!(response.status(), rocket::http::Status::SeeOther);
+
+    cookies = Vec::new();
+    for header in response.headers().get("Set-Cookie") {
+        if let Ok(cookie) = rocket::http::Cookie::parse_encoded(header) {
+            cookies.push(cookie.into_owned());
+        }
+    }
+    location = response
+        .headers()
+        .get("Location")
+        .next()
+        .unwrap()
+        .to_string();
+
+    //manually follow the redirection with a new client
+    let rocket = routes::rocket(config).expect("creating rocket instance");
+    let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
+    let mut request = client.get(location);
+
+    for cookie in cookies {
+        request = request.cookie(cookie);
+    }
+
+    let mut response = request.dispatch();
     assert_eq!(response.status(), rocket::http::Status::Ok);
     let body = response.body_string().unwrap();
 

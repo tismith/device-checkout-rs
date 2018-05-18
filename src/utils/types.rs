@@ -1,7 +1,7 @@
 //reexport Timestamp, so other modules don't need to use stderrlog
 pub use stderrlog::Timestamp;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Settings {
     pub verbosity: usize,
     pub quiet: bool,
