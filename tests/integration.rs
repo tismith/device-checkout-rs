@@ -82,6 +82,28 @@ fn test_html_get_edit_devices() {
         .expect("failed to find unit2");
 }
 
+fn get_cookies(response: &rocket::local::LocalResponse) -> Vec<rocket::http::Cookie<'static>> {
+    let mut cookies = Vec::new();
+    for header in response.headers().get("Set-Cookie") {
+        if let Ok(cookie) = rocket::http::Cookie::parse_encoded(header) {
+            cookies.push(cookie.into_owned());
+        }
+    }
+    cookies
+}
+
+fn get_redirect(response: &rocket::local::LocalResponse) -> Option<String> {
+    if response.status() == rocket::http::Status::SeeOther {
+        response
+            .headers()
+            .get("Location")
+            .next()
+            .map(|loc| loc.to_string())
+    } else {
+        None
+    }
+}
+
 #[test]
 fn test_html_post_devices() {
     let file = tempfile::NamedTempFile::new().expect("creating tempfile");
@@ -90,9 +112,7 @@ fn test_html_post_devices() {
 
     database::run_migrations(&config).expect("running migrations");
 
-    let mut cookies;
-    let location;
-    let rocket = routes::rocket(config.clone()).expect("creating rocket instance");
+    let rocket = routes::rocket(config).expect("creating rocket instance");
     let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
 
     let response = client
@@ -102,23 +122,10 @@ fn test_html_post_devices() {
         .dispatch();
 
     assert_eq!(response.status(), rocket::http::Status::SeeOther);
-
-    cookies = Vec::new();
-    for header in response.headers().get("Set-Cookie") {
-        if let Ok(cookie) = rocket::http::Cookie::parse_encoded(header) {
-            cookies.push(cookie.into_owned());
-        }
-    }
-    location = response
-        .headers()
-        .get("Location")
-        .next()
-        .unwrap()
-        .to_string();
+    let cookies = get_cookies(&response);
+    let location = get_redirect(&response).unwrap();
 
     //manually follow the redirection with a new client
-    let rocket = routes::rocket(config).expect("creating rocket instance");
-    let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
     let mut request = client.get(location);
 
     for cookie in cookies {
@@ -153,9 +160,7 @@ fn test_html_edit_devices() {
 
     database::run_migrations(&config).expect("running migrations");
 
-    let mut cookies;
-    let location;
-    let rocket = routes::rocket(config.clone()).expect("creating rocket instance");
+    let rocket = routes::rocket(config).expect("creating rocket instance");
     let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
 
     let response = client
@@ -164,24 +169,10 @@ fn test_html_edit_devices() {
         .body(r#"id=1&device_name=testunit&device_url=testurl&save=SAVE"#)
         .dispatch();
 
-    assert_eq!(response.status(), rocket::http::Status::SeeOther);
-
-    cookies = Vec::new();
-    for header in response.headers().get("Set-Cookie") {
-        if let Ok(cookie) = rocket::http::Cookie::parse_encoded(header) {
-            cookies.push(cookie.into_owned());
-        }
-    }
-    location = response
-        .headers()
-        .get("Location")
-        .next()
-        .unwrap()
-        .to_string();
+    let location = get_redirect(&response).unwrap();
+    let cookies = get_cookies(&response);
 
     //manually follow the redirection with a new client
-    let rocket = routes::rocket(config).expect("creating rocket instance");
-    let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
     let mut request = client.get(location);
 
     for cookie in cookies {
@@ -209,9 +200,7 @@ fn test_html_edit_devices_delete() {
 
     database::run_migrations(&config).expect("running migrations");
 
-    let mut cookies;
-    let location;
-    let rocket = routes::rocket(config.clone()).expect("creating rocket instance");
+    let rocket = routes::rocket(config).expect("creating rocket instance");
     let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
 
     let response = client
@@ -220,24 +209,10 @@ fn test_html_edit_devices_delete() {
         .body(r#"id=1&device_name=testunit&device_url=testurl&delete=DELETE"#)
         .dispatch();
 
-    assert_eq!(response.status(), rocket::http::Status::SeeOther);
-
-    cookies = Vec::new();
-    for header in response.headers().get("Set-Cookie") {
-        if let Ok(cookie) = rocket::http::Cookie::parse_encoded(header) {
-            cookies.push(cookie.into_owned());
-        }
-    }
-    location = response
-        .headers()
-        .get("Location")
-        .next()
-        .unwrap()
-        .to_string();
+    let cookies = get_cookies(&response);
+    let location = get_redirect(&response).unwrap();
 
     //manually follow the redirection with a new client
-    let rocket = routes::rocket(config).expect("creating rocket instance");
-    let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
     let mut request = client.get(location);
 
     for cookie in cookies {
@@ -265,9 +240,7 @@ fn test_html_add_devices() {
 
     database::run_migrations(&config).expect("running migrations");
 
-    let mut cookies;
-    let location;
-    let rocket = routes::rocket(config.clone()).expect("creating rocket instance");
+    let rocket = routes::rocket(config).expect("creating rocket instance");
     let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
 
     let response = client
@@ -276,24 +249,10 @@ fn test_html_add_devices() {
         .body(r#"device_name=testunit&device_url=testurl&add=ADD"#)
         .dispatch();
 
-    assert_eq!(response.status(), rocket::http::Status::SeeOther);
-
-    cookies = Vec::new();
-    for header in response.headers().get("Set-Cookie") {
-        if let Ok(cookie) = rocket::http::Cookie::parse_encoded(header) {
-            cookies.push(cookie.into_owned());
-        }
-    }
-    location = response
-        .headers()
-        .get("Location")
-        .next()
-        .unwrap()
-        .to_string();
+    let cookies = get_cookies(&response);
+    let location = get_redirect(&response).unwrap();
 
     //manually follow the redirection with a new client
-    let rocket = routes::rocket(config).expect("creating rocket instance");
-    let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
     let mut request = client.get(location);
 
     for cookie in cookies {
@@ -338,9 +297,7 @@ fn test_reserve_already_reserved() {
 
     database::run_migrations(&config).expect("running migrations");
 
-    let mut cookies;
-    let mut location;
-    let rocket = routes::rocket(config.clone()).expect("creating rocket instance");
+    let rocket = routes::rocket(config).expect("creating rocket instance");
     let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
 
     //reserve unit1
@@ -350,24 +307,10 @@ fn test_reserve_already_reserved() {
         .body(r#"id=1&device_owner=Owner&comments=xyzzy&reservation_status=Available"#)
         .dispatch();
 
-    assert_eq!(response.status(), rocket::http::Status::SeeOther);
-
-    cookies = Vec::new();
-    for header in response.headers().get("Set-Cookie") {
-        if let Ok(cookie) = rocket::http::Cookie::parse_encoded(header) {
-            cookies.push(cookie.into_owned());
-        }
-    }
-    location = response
-        .headers()
-        .get("Location")
-        .next()
-        .unwrap()
-        .to_string();
+    let cookies = get_cookies(&response);
+    let location = get_redirect(&response).unwrap();
 
     //manually follow the redirection with a new client
-    let rocket = routes::rocket(config.clone()).expect("creating rocket instance");
-    let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
     let mut request = client.get(location);
 
     for cookie in cookies {
@@ -389,24 +332,10 @@ fn test_reserve_already_reserved() {
         .body(r#"id=1&device_owner=Owner2&comments=xyzzy&reservation_status=Available"#)
         .dispatch();
 
-    assert_eq!(response.status(), rocket::http::Status::SeeOther);
-
-    cookies = Vec::new();
-    for header in response.headers().get("Set-Cookie") {
-        if let Ok(cookie) = rocket::http::Cookie::parse_encoded(header) {
-            cookies.push(cookie.into_owned());
-        }
-    }
-    location = response
-        .headers()
-        .get("Location")
-        .next()
-        .unwrap()
-        .to_string();
+    let cookies = get_cookies(&response);
+    let location = get_redirect(&response).unwrap();
 
     //manually follow the redirection with a new client
-    let rocket = routes::rocket(config).expect("creating rocket instance");
-    let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
     let mut request = client.get(location);
 
     for cookie in cookies {
@@ -440,9 +369,7 @@ fn test_returning_clears_fields() {
 
     database::run_migrations(&config).expect("running migrations");
 
-    let mut cookies;
-    let mut location;
-    let rocket = routes::rocket(config.clone()).expect("creating rocket instance");
+    let rocket = routes::rocket(config).expect("creating rocket instance");
     let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
 
     //reserve unit1
@@ -452,24 +379,10 @@ fn test_returning_clears_fields() {
         .body(r#"id=1&device_owner=Owner&comments=xyzzy&reservation_status=Available"#)
         .dispatch();
 
-    assert_eq!(response.status(), rocket::http::Status::SeeOther);
-
-    cookies = Vec::new();
-    for header in response.headers().get("Set-Cookie") {
-        if let Ok(cookie) = rocket::http::Cookie::parse_encoded(header) {
-            cookies.push(cookie.into_owned());
-        }
-    }
-    location = response
-        .headers()
-        .get("Location")
-        .next()
-        .unwrap()
-        .to_string();
+    let location = get_redirect(&response).unwrap();
+    let cookies = get_cookies(&response);
 
     //manually follow the redirection with a new client
-    let rocket = routes::rocket(config.clone()).expect("creating rocket instance");
-    let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
     let mut request = client.get(location);
 
     for cookie in cookies {
@@ -486,24 +399,10 @@ fn test_returning_clears_fields() {
         .body(r#"id=1&reservation_status=Reserved"#)
         .dispatch();
 
-    assert_eq!(response.status(), rocket::http::Status::SeeOther);
-
-    cookies = Vec::new();
-    for header in response.headers().get("Set-Cookie") {
-        if let Ok(cookie) = rocket::http::Cookie::parse_encoded(header) {
-            cookies.push(cookie.into_owned());
-        }
-    }
-    location = response
-        .headers()
-        .get("Location")
-        .next()
-        .unwrap()
-        .to_string();
+    let location = get_redirect(&response).unwrap();
+    let cookies = get_cookies(&response);
 
     //manually follow the redirection with a new client
-    let rocket = routes::rocket(config).expect("creating rocket instance");
-    let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
     let mut request = client.get(location);
 
     for cookie in cookies {
