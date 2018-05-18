@@ -8,7 +8,6 @@ use models;
 use pool;
 use rocket;
 use rocket_contrib;
-use std;
 use utils;
 
 pub fn html_routes() -> Vec<rocket::Route> {
@@ -80,9 +79,9 @@ struct PerDeviceContext {
 struct DevicesContext<'a> {
     devices: Vec<PerDeviceContext>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    error_message: Option<std::borrow::Cow<'a, str>>,
+    error_message: Option<&'a str>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    success_message: Option<std::borrow::Cow<'a, str>>,
+    success_message: Option<&'a str>,
 }
 
 fn format_device(device: models::Device) -> PerDeviceContext {
@@ -100,8 +99,8 @@ fn format_device(device: models::Device) -> PerDeviceContext {
 }
 
 fn gen_device_context<'a>(
-    config: &utils::types::Settings,
-    database: &database::DbConn,
+    config: &'a utils::types::Settings,
+    database: &'a database::DbConn,
     status_message: &'a Option<rocket::request::FlashMessage>,
 ) -> Result<DevicesContext<'a>, failure::Error> {
     trace!("gen_device_context");
@@ -111,9 +110,9 @@ fn gen_device_context<'a>(
 
     if let &Some(ref status_message) = status_message {
         if status_message.name() == "success" {
-            success_message = Some(status_message.msg().into());
+            success_message = Some(status_message.msg());
         } else {
-            error_message = Some(status_message.msg().into());
+            error_message = Some(status_message.msg());
         }
     }
 
