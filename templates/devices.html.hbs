@@ -34,7 +34,7 @@
 			</thead>
 			{{#each devices}}
 			<tr>
-				<form name="{{this.device.device_name}}" action="/devices" method="post">
+				<form name="reserve-{{this.device.id}}" action="/devices" method="post">
 					<input type="hidden" name="id" value="{{this.device.id}}" class="form-control">
 					<input type="hidden" name="reservation_status" value="{{this.device.reservation_status}}" class="form-control">
 					<td>{{this.device.device_name}}</td>

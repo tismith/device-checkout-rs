@@ -56,9 +56,9 @@ fn test_html_get_devices() {
     assert_eq!(response.status(), rocket::http::Status::Ok);
     let body = response.body_string().unwrap();
     let dom = victoria_dom::DOM::new(&body);
-    let _ = dom.at(r#"form[name="unit1"] a[href="http://unit1"]"#)
+    let _ = dom.at(r#"form[name="reserve-1"] a[href="http://unit1"]"#)
         .expect("failed to find unit1");
-    let _ = dom.at(r#"form[name="unit2"] a[href="http://unit2"]"#)
+    let _ = dom.at(r#"form[name="reserve-2"] a[href="http://unit2"]"#)
         .expect("failed to find unit2");
 }
 
@@ -76,9 +76,9 @@ fn test_html_get_edit_devices() {
     assert_eq!(response.status(), rocket::http::Status::Ok);
     let body = response.body_string().unwrap();
     let dom = victoria_dom::DOM::new(&body);
-    let _ = dom.at(r#"form[name="unit1"] input[name="device_url"][value="http://unit1"]"#)
+    let _ = dom.at(r#"form[name="edit-1"] input[name="device_url"][value="http://unit1"]"#)
         .expect("failed to find unit1");
-    let _ = dom.at(r#"form[name="unit2"] input[name="device_url"][value="http://unit2"]"#)
+    let _ = dom.at(r#"form[name="edit-2"] input[name="device_url"][value="http://unit2"]"#)
         .expect("failed to find unit2");
 }
 
@@ -151,13 +151,13 @@ fn test_html_post_devices() {
         .expect("failed to find success message");
     assert!(dom.at(r#"#error_message"#).is_none());
 
-    let _ = dom.at(r#"form[name="unit1"] input[name="device_owner"][value="Owner"]"#)
+    let _ = dom.at(r#"form[name="reserve-1"] input[name="device_owner"][value="Owner"]"#)
         .expect("failed to find owner");
 
-    let _ = dom.at(r#"form[name="unit1"] input[name="reservation_status"][value="Reserved"]"#)
+    let _ = dom.at(r#"form[name="reserve-1"] input[name="reservation_status"][value="Reserved"]"#)
         .expect("failed to find reservation status");
 
-    let _ = dom.at(r#"form[name="unit1"] input[name="comments"][value="xyzzy"]"#)
+    let _ = dom.at(r#"form[name="reserve-1"] input[name="comments"][value="xyzzy"]"#)
         .expect("failed to find comments");
 }
 
@@ -187,8 +187,11 @@ fn test_html_edit_devices() {
         .expect("failed to find success message");
     assert!(dom.at(r#"#error_message"#).is_none());
 
-    let _ = dom.at(r#"form[name="testunit"] input[name="device_url"][value="testurl"]"#)
-        .expect("failed to find edited device");
+    let _ = dom.at(r#"form[name="edit-1"] input[name="device_name"][value="testunit"]"#)
+        .expect("failed to find edited device name");
+
+    let _ = dom.at(r#"form[name="edit-1"] input[name="device_url"][value="testurl"]"#)
+        .expect("failed to find edited device url");
 }
 
 #[test]
@@ -203,7 +206,7 @@ fn test_html_edit_devices_delete() {
     let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
 
     let response = client
-        .post("/editDevices")
+        .post("/deleteDevices")
         .header(rocket::http::ContentType(rocket::http::MediaType::Form))
         .body(r#"id=1&device_name=testunit&device_url=testurl&delete=DELETE"#)
         .dispatch();
@@ -218,7 +221,7 @@ fn test_html_edit_devices_delete() {
         .expect("failed to find success message");
     assert!(dom.at(r#"#error_message"#).is_none());
 
-    assert!(dom.at(r#"form[name="unit1"]"#).is_none());
+    assert!(dom.at(r#"form[name="edit-1"]"#).is_none());
 }
 
 #[test]
@@ -248,7 +251,7 @@ fn test_html_add_devices() {
         .expect("failed to find success message");
     assert!(dom.at(r#"#error_message"#).is_none());
 
-    let _ = dom.at(r#"form[name="testunit"] input[name="device_url"][value="testurl"]"#)
+    let _ = dom.at(r#"form input[name="device_url"][value="testurl"]"#)
         .expect("failed to find added device");
 }
 
@@ -291,7 +294,7 @@ fn test_reserve_already_reserved() {
     let body = response.body_string().unwrap();
 
     let dom = victoria_dom::DOM::new(&body);
-    let _ = dom.at(r#"form[name="unit1"] input[name="reservation_status"][value="Reserved"]"#)
+    let _ = dom.at(r#"form[name="reserve-1"] input[name="reservation_status"][value="Reserved"]"#)
         .expect("failed to find reservation status");
 
     //reserve unit2
@@ -312,10 +315,10 @@ fn test_reserve_already_reserved() {
         .expect("failed to find error message");
     assert!(dom.at(r#"#success_message"#).is_none());
 
-    let _ = dom.at(r#"form[name="unit1"] input[name="device_owner"][value="Owner"]"#)
+    let _ = dom.at(r#"form[name="reserve-1"] input[name="device_owner"][value="Owner"]"#)
         .expect("failed to find owner");
     assert!(
-        dom.at(r#"form[name="unit1"] input[name="device_owner"][value="Owner2"]"#)
+        dom.at(r#"form[name="reserve-1"] input[name="device_owner"][value="Owner2"]"#)
             .is_none()
     );
 
@@ -362,17 +365,17 @@ fn test_returning_clears_fields() {
 
     //test that the old values for the reservation are gone
     assert!(
-        dom.at(r#"form[name="unit1"] input[name="device_owner"][value="Owner"]"#)
+        dom.at(r#"form[name="reserve-1"] input[name="device_owner"][value="Owner"]"#)
             .is_none()
     );
     assert!(
-        dom.at(r#"form[name="unit1"] input[name="comments"][value="xyzzy"]"#)
+        dom.at(r#"form[name="reserve-1"] input[name="comments"][value="xyzzy"]"#)
             .is_none()
     );
 
     //but that they still exist
-    let _ = dom.at(r#"form[name="unit1"] input[name="device_owner"][value]"#)
+    let _ = dom.at(r#"form[name="reserve-1"] input[name="device_owner"][value]"#)
         .expect("failed to find empty owner");
-    let _ = dom.at(r#"form[name="unit1"] input[name="comments"][value]"#)
+    let _ = dom.at(r#"form[name="reserve-1"] input[name="comments"][value]"#)
         .expect("failed to find empty comments");
 }

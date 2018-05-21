@@ -9,7 +9,7 @@
 	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-	<div class="container">
+ 	<div class="container">
 		<h1>Edit Devices</h1>
 		{{#if success_message}}
 		<div class="alert alert-success" id="success_message">
@@ -32,11 +32,14 @@
 			</thead>
 			{{#each devices}}
 			<tr>
-				<form name="{{this.device.device_name}}" action="/editDevices" method="post">
+				<form name="edit-{{this.device.id}}" action="/editDevices" method="post">
 					<input type="hidden" name="id" value="{{this.device.id}}" class="form-control">
 					<td><input type="text" name="device_name" class="form-control" value="{{this.device.device_name}}"></td>
 					<td><input type="text" name="device_url" class="form-control" value="{{this.device.device_url}}"></td>
 					<td><input type="submit" class="btn btn-primary" name="save" value="SAVE"></td>
+				</form>
+				<form name="delete-{{this.device.id}}" action="/deleteDevices" method="post">
+					<input type="hidden" name="id" value="{{this.device.id}}" class="form-control">
 					<td><input type="submit" class="btn btn-danger" name="delete" value="DELETE"></td>
 				</form>
 			</tr>

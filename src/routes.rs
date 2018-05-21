@@ -17,7 +17,8 @@ pub fn html_routes() -> Vec<rocket::Route> {
         self::post_devices,
         self::get_edit_devices,
         self::post_edit_devices,
-        self::post_add_devices
+        self::post_add_devices,
+        self::post_delete_devices,
     ]
 }
 
@@ -188,28 +189,48 @@ pub fn post_add_devices(
 }
 
 #[cfg_attr(feature = "cargo-clippy", allow(needless_pass_by_value))]
+#[post("/deleteDevices", data = "<device_edit>")]
+pub fn post_delete_devices(
+    config: rocket::State<utils::types::Settings>,
+    database: pool::DbConn,
+    device_edit: Result<rocket::request::LenientForm<models::DeviceDelete>, Option<String>>,
+) -> rocket::response::Flash<rocket::response::Redirect> {
+    trace!("post_delete_devices()");
+
+    let update_result: Result<_, failure::Error> = if let Ok(device_edit) = device_edit {
+        let device = device_edit.get();
+        database::delete_device(&*config, &*database, device)
+    } else {
+        return rocket::response::Flash::error(
+            rocket::response::Redirect::to("/editDevices"),
+            "Failed to parse form data",
+        );
+    };
+
+    return match update_result {
+        Ok(0) | Err(_) => rocket::response::Flash::error(
+            rocket::response::Redirect::to("/editDevices"),
+            "Failed to delete device",
+        ),
+        _ => rocket::response::Flash::success(
+            rocket::response::Redirect::to("/editDevices"),
+            "Successfully deleted device",
+        ),
+    };
+}
+
+#[cfg_attr(feature = "cargo-clippy", allow(needless_pass_by_value))]
 #[post("/editDevices", data = "<device_edit>")]
 pub fn post_edit_devices(
     config: rocket::State<utils::types::Settings>,
     database: pool::DbConn,
-    device_edit: Result<rocket::request::Form<models::DeviceEdit>, Option<String>>,
+    device_edit: Result<rocket::request::LenientForm<models::DeviceEdit>, Option<String>>,
 ) -> rocket::response::Flash<rocket::response::Redirect> {
     trace!("post_edit_devices()");
 
     let update_result: Result<_, failure::Error> = if let Ok(device_edit) = device_edit {
         let device = device_edit.get();
-        if device.save.is_some() {
-            trace!("saving");
-            database::edit_device(&*config, &*database, &device)
-        } else if device.delete.is_some() {
-            trace!("deleting");
-            database::delete_device(&*config, &*database, &device)
-        } else {
-            return rocket::response::Flash::error(
-                rocket::response::Redirect::to("/editDevices"),
-                "Unknown form action",
-            );
-        }
+        database::edit_device(&*config, &*database, &device)
     } else {
         return rocket::response::Flash::error(
             rocket::response::Redirect::to("/editDevices"),

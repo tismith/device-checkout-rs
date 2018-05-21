@@ -87,9 +87,9 @@ pub fn edit_device(
 pub fn delete_device(
     _config: &utils::types::Settings,
     database: &DbConn,
-    device_edit: &models::DeviceEdit,
+    device_delete: &models::DeviceDelete,
 ) -> Result<usize, failure::Error> {
-    Ok(diesel::delete(devices.filter(id.eq(&device_edit.id))).execute(database)?)
+    Ok(diesel::delete(devices.filter(id.eq(&device_delete.id))).execute(database)?)
 }
 
 ///Inserts a new device

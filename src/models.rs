@@ -80,8 +80,13 @@ pub struct DeviceEdit {
     pub id: i32,
     pub device_name: String,
     pub device_url: String,
-    pub save: Option<String>,
-    pub delete: Option<String>,
+}
+
+#[cfg_attr(feature = "cargo-clippy", allow(print_literal, suspicious_else_formatting))]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Default, Clone, Hash, Serialize, Deserialize,
+         FromForm)]
+pub struct DeviceDelete {
+    pub id: i32,
 }
 
 #[cfg_attr(feature = "cargo-clippy", allow(print_literal, suspicious_else_formatting))]
