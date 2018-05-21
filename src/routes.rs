@@ -90,6 +90,8 @@ fn format_device(device: models::Device) -> PerDeviceContext {
         device.updated_at,
         chrono::Local::now().offset().fix(),
     );
+    trace!("format_device");
+
     let updated_at_local = format!("{}", updated_at_local.format("%F %r"));
     PerDeviceContext {
         device,
@@ -238,13 +240,11 @@ pub fn post_devices(
 
     let update_result = if let Ok(device_update) = device_update {
         let mut device = device_update.into_inner();
-        //toggle the reservation status
+        //save the old reservation status around for the sql query
         let current_reservation_status = device.reservation_status;
-        if device.reservation_status == models::ReservationStatus::Available {
-            device.reservation_status = models::ReservationStatus::Reserved;
-        } else {
-            device.reservation_status = models::ReservationStatus::Available;
-        }
+
+        //toggle the reservation status
+        device.reservation_status = !device.reservation_status;
 
         //blank out the owner and comments if we're returning it
         if device.reservation_status == models::ReservationStatus::Available {

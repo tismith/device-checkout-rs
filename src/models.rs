@@ -1,6 +1,7 @@
 use chrono;
 use rocket;
 use schema::devices;
+use std;
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash, Serialize, Deserialize,
          DbEnum)]
@@ -12,6 +13,17 @@ pub enum ReservationStatus {
 impl Default for ReservationStatus {
     fn default() -> Self {
         ReservationStatus::Available
+    }
+}
+
+impl std::ops::Not for ReservationStatus {
+    type Output = ReservationStatus;
+
+    fn not(self) -> Self::Output {
+        match self {
+            ReservationStatus::Available => ReservationStatus::Reserved,
+            ReservationStatus::Reserved => ReservationStatus::Available,
+        }
     }
 }
 
