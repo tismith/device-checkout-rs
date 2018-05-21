@@ -230,7 +230,7 @@ pub fn post_edit_devices(
 
     let update_result: Result<_, failure::Error> = if let Ok(device_edit) = device_edit {
         let device = device_edit.get();
-        database::edit_device(&*config, &*database, &device)
+        database::edit_device(&*config, &*database, device)
     } else {
         return rocket::response::Flash::error(
             rocket::response::Redirect::to("/editDevices"),
