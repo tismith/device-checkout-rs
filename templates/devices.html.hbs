@@ -1,58 +1,60 @@
 <!doctype html>
-<head>
-	<title>Device list</title>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-</head>
-<body>
-	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-	<div class="container-fluid">
-		<h1>Devices</h1>
-		{{#if success_message}}
-		<div class="alert alert-success" id="success_message">
-			<strong>Success:</strong> {{success_message}}
-		</div>
-		{{/if}}
-		{{#if error_message}}
-		<div class="alert alert-danger" id="error_message">
-			<strong>Error:</strong> {{error_message}}
-		</div>
-		{{/if}}
-		<table class="table table-bordered">
-			<thead class="thead-dark">
+<html lang="en">
+	<head>
+		<title>Device list</title>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
+	</head>
+	<body>
+		<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+		<div class="container-fluid">
+			<h1>Devices</h1>
+			{{#if success_message}}
+			<div class="alert alert-success" id="success_message">
+				<strong>Success:</strong> {{success_message}}
+			</div>
+			{{/if}}
+			{{#if error_message}}
+			<div class="alert alert-danger" id="error_message">
+				<strong>Error:</strong> {{error_message}}
+			</div>
+			{{/if}}
+			<table class="table table-bordered">
+				<thead class="thead-dark">
+					<tr>
+						<th>Device name</th>
+						<th>URL</th>
+						<th>Owner</th>
+						<th>Comments</th>
+						<th>Last Changed</th>
+						<th></th>
+					</tr>
+				</thead>
+				{{#each devices}}
 				<tr>
-					<th>Device name</th>
-					<th>URL</th>
-					<th>Owner</th>
-					<th>Comments</th>
-					<th>Last Changed</th>
-					<th></th>
-				</tr>
-			</thead>
-			{{#each devices}}
-			<tr>
-				<form name="reserve-{{this.device.id}}" action="/devices" method="post">
-					<input type="hidden" name="id" value="{{this.device.id}}" class="form-control">
-					<input type="hidden" name="reservation_status" value="{{this.device.reservation_status}}" class="form-control">
 					<td>{{this.device.device_name}}</td>
 					<td><a href="{{this.device.device_url}}">{{this.device.device_url}}</a></td>
-					<td><input type="text" name="device_owner" class="form-control" value="{{this.device.device_owner}}"></td>
-					<td><input type="text" name="comments" class="form-control" value="{{this.device.comments}}"></td>
+					<td><input type="text" name="device_owner" class="form-control" value="{{this.device.device_owner}}" form="reserve-{{this.device.id}}"></td>
+					<td><input type="text" name="comments" class="form-control" value="{{this.device.comments}}" form="reserve-{{this.device.id}}"></td>
 					<td>{{this.updated_at_local}}</td>
 					<td>
-						{{#if this.is_reserved}}
-						<input type="submit" class="btn btn-danger" value="RETURN">
-						{{else}}
-						<input type="submit" class="btn btn-primary" value="CLAIM">
-						{{/if}}
+						<form id="reserve-{{this.device.id}}" name="reserve-{{this.device.id}}" action="/devices" method="post">
+							<input type="hidden" name="id" value="{{this.device.id}}" class="form-control" form="reserve-{{this.device.id}}">
+							<input type="hidden" name="reservation_status" value="{{this.device.reservation_status}}" class="form-control" form="reserve-{{this.device.id}}">
+							{{#if this.is_reserved}}
+							<input type="submit" class="btn btn-danger" value="RETURN" form="reserve-{{this.device.id}}">
+							{{else}}
+							<input type="submit" class="btn btn-primary" value="CLAIM" form="reserve-{{this.device.id}}">
+							{{/if}}
+						</form>
 					</td>
-				</form>
-			</tr>
-			{{/each}}
-		</table>
-		<a href="/editDevices">Edit Device List...</a>
-	</div>
-</body>
+				</tr>
+				{{/each}}
+			</table>
+			<a href="/editDevices">Edit Device List...</a>
+		</div>
+	</body>
+</html>
