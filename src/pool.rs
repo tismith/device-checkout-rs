@@ -12,7 +12,10 @@ pub fn init_pool(
     let database_url = config.database_url.clone();
     let manager =
         diesel::r2d2::ConnectionManager::<diesel::sqlite::SqliteConnection>::new(database_url);
-    diesel::r2d2::Pool::new(manager).expect("Database pool")
+    diesel::r2d2::Pool::builder()
+        .max_size(1)
+        .build(manager)
+        .expect("Database pool")
 }
 
 // Connection request guard type: a wrapper around an r2d2 pooled connection.
