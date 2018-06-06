@@ -7,9 +7,6 @@ description: |
 
 grade: stable
 confinement: strict
-architectures:
-  - amd64
-  - i386
 
 parts:
   device-checkout:
@@ -17,7 +14,7 @@ parts:
       - device-checkout-templates
     source: https://github.com/tismith/device-checkout-rs.git
     plugin: x-rust
-    rust-revision: nightly-2018-05-06
+    rust-revision: nightly-2018-06-05
 #--------------------------------------------------
 #     override-pull: |
 #       export RUST_PATH=../rust

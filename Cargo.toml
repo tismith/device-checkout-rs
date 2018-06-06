@@ -30,7 +30,7 @@ default-features = false
 features = ["json", "handlebars_templates"]
 
 [dependencies.diesel]
-version = "1.0.0"
+version = "<=1.2.0"
 features = ["sqlite", "chrono", "r2d2"]
 
 [dependencies.diesel-derive-enum]
