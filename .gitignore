@@ -5,7 +5,12 @@ devices.db
 /stage
 /prime
 /parts
-snap/.snapcraft/
+/snap/stage
+/snap/prime
+/snap/parts
+/snap/snap
+/snap/.snapcraft/
+**/__pycache__/
 *.snap
 device-checkout_source.tar.bz2
 

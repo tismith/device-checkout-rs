@@ -13,10 +13,19 @@ parts:
     after:
       - device-checkout-templates
     source: https://github.com/tismith/device-checkout-rs.git
-    plugin: rust
+    plugin: x-rust
     rust-revision: nightly-2018-05-06
+#--------------------------------------------------
+#     override-pull: |
+#       export RUST_PATH=../rust
+#       export RUSTC=${RUST_PATH}/bin/rustc
+#       snapcraftctl pull
+#-------------------------------------------------- 
     build-packages:
+      - build-essential
       - libsqlite3-dev
+    stage-packages:
+      - libsqlite3-0
 
   device-checkout-templates:
     source: https://github.com/tismith/device-checkout-rs.git
