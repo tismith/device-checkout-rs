@@ -12,14 +12,14 @@ parts:
   device-checkout:
     after:
       - device-checkout-templates
-    source: .
+    source: https://github.com/tismith/device-checkout-rs.git
     plugin: rust
     rust-revision: nightly-2018-05-06
     build-packages:
       - libsqlite3-dev
 
   device-checkout-templates:
-    source: .
+    source: https://github.com/tismith/device-checkout-rs.git
     plugin: dump
     organize:
       templates : var/lib/device-checkout/templates

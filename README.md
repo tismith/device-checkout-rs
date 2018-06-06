@@ -2,6 +2,7 @@ device-checkout-rs
 ==================
 [![Build Status](https://travis-ci.org/tismith/device-checkout-rs.svg?branch=master)](https://travis-ci.org/tismith/device-checkout-rs)
 [![codecov](https://codecov.io/gh/tismith/device-checkout-rs/branch/master/graph/badge.svg)](https://codecov.io/gh/tismith/device-checkout-rs)
+[![Snap Status](https://build.snapcraft.io/badge/tismith/device-checkout-rs.svg)](https://build.snapcraft.io/user/tismith/device-checkout-rs)
 
 Reimplementation of https://github.com/tismith/deviceCheckout in rust. Basically complete now. The HTTP API endpoints could use some more breadth, but the form based web ui is functional.
 
@@ -33,6 +34,8 @@ cargo run
 
 Using `snap`:
 -------------
+
+We're using [snapcraft](https://build.snapcraft.io) to automatically build snaps of device-checkout.
 
 ```sh
 sudo snap install device-checkout
