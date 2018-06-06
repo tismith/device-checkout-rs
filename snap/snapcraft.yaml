@@ -32,3 +32,4 @@ apps:
       - network-bind
     command: bin/device-checkout --templates $SNAP/var/lib/device-checkout/templates --database $SNAP_DATA/devices.db
     daemon: simple
+    restart-condition: always
