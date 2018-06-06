@@ -1,5 +1,5 @@
 name: device-checkout
-version: '0.2.0'
+version: '0.2.1'
 summary: A web-based device registry for managing test gear
 description: |
   A web service for managing shared test gear. You can register devices, give
