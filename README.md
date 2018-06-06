@@ -9,11 +9,6 @@ Since this is using `rocket` for the web framework, we need to use rust nightly,
 
 We use `diesel-migrations` to automatically build and migrate the database. No need to seed the database manually.
 
-To run the application do:
-```sh
-cargo run
-```
-
 We are using:
 -------------
 * `rocket` for the web framework
@@ -23,3 +18,23 @@ We are using:
 * `clap` for commandline argument processing
 * `failure` for error handling
 * `assert_cli` for integration testing
+
+Installation:
+=============
+
+Using `cargo`:
+--------------
+
+Install the usual tools (i.e. `rustup`) and then:
+```sh
+cargo build
+cargo run
+```
+
+Using `snap`:
+-------------
+
+```sh
+sudo snap install device-checkout
+```
+
