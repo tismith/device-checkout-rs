@@ -1,3 +1,11 @@
 devices.db
 /target
 **/*.rs.bk
+**/*.rustfmt
+/stage
+/prime
+/parts
+snap/.snapcraft/
+*.snap
+device-checkout_source.tar.bz2
+
