@@ -1,0 +1,35 @@
+name: device-checkout
+version: '0.2.1'
+summary: A web-based device registry for managing test gear
+description: |
+  A web service for managing shared test gear. You can register devices, give
+  them a url, and then people can check out and reserve devices.
+
+grade: stable
+confinement: strict
+
+parts:
+  device-checkout:
+    after:
+      - device-checkout-templates
+    source: .
+    plugin: rust
+    rust-revision: nightly-2018-05-06
+    build-packages:
+      - libsqlite3-dev
+
+  device-checkout-templates:
+    source: .
+    plugin: dump
+    organize:
+      templates : var/lib/device-checkout/templates
+    stage:
+      - var/lib/device-checkout/templates
+
+apps:
+  device-checkout:
+    plugs:
+      - network-bind
+    command: bin/device-checkout --templates $SNAP/var/lib/device-checkout/templates --database $SNAP_DATA/devices.db
+    daemon: simple
+    restart-condition: always

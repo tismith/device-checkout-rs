@@ -1,3 +1,18 @@
+<a name="v0.2.1"></a>
+## v0.2.1 (2018-06-06)
+
+
+#### Bug Fixes
+
+*   Set the pool size to 1, avoid SQLITE_BUSY errors ([ebcd3287](https://github.com/tismith/device-checkout-rs/commit/ebcd3287ba13200c6015e39e22ab9e7c79ed7841))
+
+#### Features
+
+*   Add a snap package manifest for distribution ([58aa3b7e](https://github.com/tismith/device-checkout-rs/commit/58aa3b7e418c42d9e2e65ef751bbb19c9bc70103))
+*   Add a --templates command-line argument ([abfb73a3](https://github.com/tismith/device-checkout-rs/commit/abfb73a32a7258f733542aef90e115ad2a38ff66))
+
+
+
 <a name="0.2.0"></a>
 ## 0.2.0 (2018-05-22)
 
