@@ -7,6 +7,7 @@ pub struct Settings {
     pub quiet: bool,
     pub timestamp: Timestamp,
     pub module_path: Option<String>,
+    pub template_dir: Option<String>,
     pub database_url: String,
     pub port: u16,
 }
@@ -26,6 +27,7 @@ impl Default for Settings {
             quiet: false,
             timestamp: Timestamp::Off,
             module_path: None,
+            template_dir: None,
             database_url: "devices.db".to_string(),
             port: 8000,
         }

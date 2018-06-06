@@ -31,6 +31,8 @@ fn parse(matches: &clap::ArgMatches) -> Result<types::Settings, clap::Error> {
         })?,
     };
 
+    let template_dir = matches.value_of("templates").map(|x| x.to_string());
+
     let port = value_t!(matches.value_of("port"), u16)?;
     let database = matches.value_of("database").ok_or_else(|| clap::Error {
         message: "invalid value for 'database'".into(),
@@ -43,6 +45,7 @@ fn parse(matches: &clap::ArgMatches) -> Result<types::Settings, clap::Error> {
         quiet,
         timestamp,
         port,
+        template_dir,
         database_url: database.to_string(),
         ..Default::default()
     })
@@ -81,6 +84,12 @@ fn matcher<'a, 'b>() -> clap::App<'a, 'b> {
                 .takes_value(true),
         )
         .arg(
+            clap::Arg::with_name("templates")
+                .long("templates")
+                .help("directory for templates")
+                .takes_value(true),
+        )
+        .arg(
             clap::Arg::with_name("database")
                 .short("d")
                 .long("database")
@@ -112,6 +121,26 @@ mod tests {
         let s = parse(&m).unwrap();
 
         assert_eq!(s.database_url, "somefile.txt".to_string());
+    }
+
+    #[test]
+    fn test_template_dir() {
+        let m = matcher()
+            .get_matches_from_safe(vec!["", "--templates", "somedir"])
+            .unwrap();
+        let s = parse(&m).unwrap();
+
+        assert_eq!(s.template_dir, Some("somedir".to_string()));
+    }
+
+    #[test]
+    fn test_no_template_dir() {
+        let m = matcher()
+            .get_matches_from_safe(vec![""])
+            .unwrap();
+        let s = parse(&m).unwrap();
+
+        assert_eq!(s.template_dir, None);
     }
 
     #[test]
