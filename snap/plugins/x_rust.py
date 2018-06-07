@@ -234,4 +234,5 @@ class RustPlugin(snapcraft.BasePlugin):
 
         self.run([self._cargo, 'fetch',
                   '--manifest-path',
-                  os.path.join(sourcedir, 'Cargo.toml')], env=self._build_env())
+                  os.path.join(sourcedir, 'Cargo.toml')],
+                 env=self._build_env())

@@ -10,30 +10,18 @@ confinement: strict
 
 parts:
   device-checkout:
-    after:
-      - device-checkout-templates
     source: https://github.com/tismith/device-checkout-rs.git
     plugin: x-rust
     rust-revision: nightly-2018-06-05
-#--------------------------------------------------
-#     override-pull: |
-#       export RUST_PATH=../rust
-#       export RUSTC=${RUST_PATH}/bin/rustc
-#       snapcraftctl pull
-#-------------------------------------------------- 
+    override-build: |
+      snapcraftctl build
+      mkdir -p ${SNAPCRAFT_PART_INSTALL}/var/lib/device-checkout
+      cp -r templates ${SNAPCRAFT_PART_INSTALL}/var/lib/device-checkout
     build-packages:
       - build-essential
       - libsqlite3-dev
     stage-packages:
       - libsqlite3-0
-
-  device-checkout-templates:
-    source: https://github.com/tismith/device-checkout-rs.git
-    plugin: dump
-    organize:
-      templates : var/lib/device-checkout/templates
-    stage:
-      - var/lib/device-checkout/templates
 
 apps:
   device-checkout:
