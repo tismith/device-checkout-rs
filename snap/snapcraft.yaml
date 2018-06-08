@@ -15,8 +15,8 @@ parts:
     rust-revision: nightly-2018-06-05
     override-build: |
       snapcraftctl build
-      mkdir -p ${SNAPCRAFT_PART_INSTALL}/var/lib/device-checkout
-      cp -r templates ${SNAPCRAFT_PART_INSTALL}/var/lib/device-checkout
+      mkdir -p ${SNAPCRAFT_PART_INSTALL}/usr/share/device-checkout
+      cp -r templates ${SNAPCRAFT_PART_INSTALL}/usr/share/device-checkout
     build-packages:
       - build-essential
       - libsqlite3-dev
@@ -27,6 +27,6 @@ apps:
   device-checkout:
     plugs:
       - network-bind
-    command: bin/device-checkout --templates $SNAP/var/lib/device-checkout/templates --database $SNAP_DATA/devices.db
+    command: bin/device-checkout --templates ${SNAP}/usr/share/device-checkout/templates --database ${SNAP_DATA}/devices.db
     daemon: simple
     restart-condition: always
