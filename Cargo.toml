@@ -10,7 +10,7 @@ lto = true
 [dependencies]
 failure = "0.1.1"
 log = "0.4.1"
-stderrlog = "0.3.0"
+stderrlog = "0.4.0"
 clap = "2.31.2"
 rocket = "0.3.8"
 rocket_codegen = "0.3.8"
