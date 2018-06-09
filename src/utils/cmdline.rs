@@ -135,9 +135,7 @@ mod tests {
 
     #[test]
     fn test_no_template_dir() {
-        let m = matcher()
-            .get_matches_from_safe(vec![""])
-            .unwrap();
+        let m = matcher().get_matches_from_safe(vec![""]).unwrap();
         let s = parse(&m).unwrap();
 
         assert_eq!(s.template_dir, None);

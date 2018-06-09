@@ -56,9 +56,11 @@ fn test_html_get_devices() {
     assert_eq!(response.status(), rocket::http::Status::Ok);
     let body = response.body_string().unwrap();
     let dom = victoria_dom::DOM::new(&body);
-    let _ = dom.at(r#"a[href="http://unit1"]"#)
+    let _ = dom
+        .at(r#"a[href="http://unit1"]"#)
         .expect("failed to find unit1");
-    let _ = dom.at(r#"a[href="http://unit2"]"#)
+    let _ = dom
+        .at(r#"a[href="http://unit2"]"#)
         .expect("failed to find unit2");
 }
 
@@ -76,9 +78,11 @@ fn test_html_get_edit_devices() {
     assert_eq!(response.status(), rocket::http::Status::Ok);
     let body = response.body_string().unwrap();
     let dom = victoria_dom::DOM::new(&body);
-    let _ = dom.at(r#"input[name="device_url"][value="http://unit1"]"#)
+    let _ = dom
+        .at(r#"input[name="device_url"][value="http://unit1"]"#)
         .expect("failed to find unit1");
-    let _ = dom.at(r#"input[name="device_url"][value="http://unit2"]"#)
+    let _ = dom
+        .at(r#"input[name="device_url"][value="http://unit2"]"#)
         .expect("failed to find unit2");
 }
 
@@ -147,17 +151,21 @@ fn test_html_post_devices() {
     let body = response.body_string().unwrap();
     let dom = victoria_dom::DOM::new(&body);
 
-    let _ = dom.at(r#"#success_message"#)
+    let _ = dom
+        .at(r#"#success_message"#)
         .expect("failed to find success message");
     assert!(dom.at(r#"#error_message"#).is_none());
 
-    let _ = dom.at(r#"input[name="device_owner"][value="Owner"]"#)
+    let _ = dom
+        .at(r#"input[name="device_owner"][value="Owner"]"#)
         .expect("failed to find owner");
 
-    let _ = dom.at(r#"input[name="reservation_status"][value="Reserved"]"#)
+    let _ = dom
+        .at(r#"input[name="reservation_status"][value="Reserved"]"#)
         .expect("failed to find reservation status");
 
-    let _ = dom.at(r#"input[name="comments"][value="xyzzy"]"#)
+    let _ = dom
+        .at(r#"input[name="comments"][value="xyzzy"]"#)
         .expect("failed to find comments");
 }
 
@@ -183,14 +191,17 @@ fn test_html_edit_devices() {
     let body = response.body_string().unwrap();
 
     let dom = victoria_dom::DOM::new(&body);
-    let _ = dom.at(r#"#success_message"#)
+    let _ = dom
+        .at(r#"#success_message"#)
         .expect("failed to find success message");
     assert!(dom.at(r#"#error_message"#).is_none());
 
-    let _ = dom.at(r#"input[name="device_name"][value="testunit"]"#)
+    let _ = dom
+        .at(r#"input[name="device_name"][value="testunit"]"#)
         .expect("failed to find edited device name");
 
-    let _ = dom.at(r#"input[name="device_url"][value="testurl"]"#)
+    let _ = dom
+        .at(r#"input[name="device_url"][value="testurl"]"#)
         .expect("failed to find edited device url");
 }
 
@@ -217,7 +228,8 @@ fn test_html_edit_devices_delete() {
 
     let dom = victoria_dom::DOM::new(&body);
 
-    let _ = dom.at(r#"#success_message"#)
+    let _ = dom
+        .at(r#"#success_message"#)
         .expect("failed to find success message");
     assert!(dom.at(r#"#error_message"#).is_none());
 
@@ -247,11 +259,13 @@ fn test_html_add_devices() {
 
     let dom = victoria_dom::DOM::new(&body);
 
-    let _ = dom.at(r#"#success_message"#)
+    let _ = dom
+        .at(r#"#success_message"#)
         .expect("failed to find success message");
     assert!(dom.at(r#"#error_message"#).is_none());
 
-    let _ = dom.at(r#"input[name="device_url"][value="testurl"]"#)
+    let _ = dom
+        .at(r#"input[name="device_url"][value="testurl"]"#)
         .expect("failed to find added device");
 }
 
@@ -294,7 +308,8 @@ fn test_reserve_already_reserved() {
     let body = response.body_string().unwrap();
 
     let dom = victoria_dom::DOM::new(&body);
-    let _ = dom.at(r#"input[name="reservation_status"][value="Reserved"]"#)
+    let _ = dom
+        .at(r#"input[name="reservation_status"][value="Reserved"]"#)
         .expect("failed to find reservation status");
 
     //reserve unit2
@@ -311,11 +326,13 @@ fn test_reserve_already_reserved() {
 
     let dom = victoria_dom::DOM::new(&body);
 
-    let _ = dom.at(r#"#error_message"#)
+    let _ = dom
+        .at(r#"#error_message"#)
         .expect("failed to find error message");
     assert!(dom.at(r#"#success_message"#).is_none());
 
-    let _ = dom.at(r#"input[name="device_owner"][value="Owner"]"#)
+    let _ = dom
+        .at(r#"input[name="device_owner"][value="Owner"]"#)
         .expect("failed to find owner");
     assert!(
         dom.at(r#"input[name="device_owner"][value="Owner2"]"#)
@@ -359,7 +376,8 @@ fn test_returning_clears_fields() {
 
     let dom = victoria_dom::DOM::new(&body);
 
-    let _ = dom.at(r#"#success_message"#)
+    let _ = dom
+        .at(r#"#success_message"#)
         .expect("failed to find success message");
     assert!(dom.at(r#"#error_message"#).is_none());
 
@@ -371,8 +389,10 @@ fn test_returning_clears_fields() {
     assert!(dom.at(r#"input[name="comments"][value="xyzzy"]"#).is_none());
 
     //but that they still exist
-    let _ = dom.at(r#"input[name="device_owner"][form="reserve-1"][value]"#)
+    let _ = dom
+        .at(r#"input[name="device_owner"][form="reserve-1"][value]"#)
         .expect("failed to find empty owner");
-    let _ = dom.at(r#"input[name="comments"][form="reserve-1"][value]"#)
+    let _ = dom
+        .at(r#"input[name="comments"][form="reserve-1"][value]"#)
         .expect("failed to find empty comments");
 }

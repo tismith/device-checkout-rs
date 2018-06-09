@@ -294,8 +294,8 @@ pub fn post_devices(
 }
 
 pub fn rocket(config: utils::types::Settings) -> Result<rocket::Rocket, failure::Error> {
-    let mut rocket_builder = rocket::config::Config::build(rocket::config::Environment::Production)
-        .port(config.port);
+    let mut rocket_builder =
+        rocket::config::Config::build(rocket::config::Environment::Production).port(config.port);
 
     if let Some(ref template_dir) = config.template_dir {
         rocket_builder = rocket_builder.extra("template_dir", template_dir.as_ref());
