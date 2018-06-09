@@ -9,9 +9,11 @@ before_script:
         - cargo install cargo-update || echo "cargo-update already installed"
         - cargo install cargo-travis || echo "cargo-travis already installed"
         - cargo install-update -a # update outdated cached binaries
+        - rustup component add rustfmt-preview
 
 script:
         - |
+                cargo fmt --all -- --check &&
                 cargo build    --verbose &&
                 cargo test     --verbose
 after_success:
