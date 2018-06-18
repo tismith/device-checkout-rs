@@ -7,6 +7,8 @@ fn main() -> Result<(), exitfailure::ExitFailure> {
     config.module_path = Some(module_path!().into());
     utils::logging::configure_logger(&config);
     database::run_migrations(&config).context("Failed to migrate database")?;
-    routes::rocket(config).context("Failed to launch Rocket http engine")?.launch();
+    routes::rocket(config)
+        .context("Failed to launch Rocket http engine")?
+        .launch();
     Ok(())
 }
