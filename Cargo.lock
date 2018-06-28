@@ -199,7 +199,7 @@ dependencies = [
  "log 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "rocket 0.3.14 (registry+https://github.com/rust-lang/crates.io-index)",
  "rocket_codegen 0.3.12 (registry+https://github.com/rust-lang/crates.io-index)",
- "rocket_contrib 0.3.13 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rocket_contrib 0.3.14 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.68 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_derive 1.0.68 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 1.0.22 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -731,7 +731,7 @@ dependencies = [
 
 [[package]]
 name = "rocket_contrib"
-version = "0.3.13"
+version = "0.3.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "glob 0.2.11 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1161,7 +1161,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum ring 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)" = "1f2a6dc7fc06a05e6de183c5b97058582e9da2de0c136eafe49609769c507724"
 "checksum rocket 0.3.14 (registry+https://github.com/rust-lang/crates.io-index)" = "798935129effaaf50a4647dbd96bf48cedb3d06c16ab645405d9f02fb90a29d0"
 "checksum rocket_codegen 0.3.12 (registry+https://github.com/rust-lang/crates.io-index)" = "67b0c2f30efe07fcad87ab87401202aeb1b6388fdc08141460e3ea6eed5a28fd"
-"checksum rocket_contrib 0.3.13 (registry+https://github.com/rust-lang/crates.io-index)" = "d14af6aa8061360879f346084609654133c6c62e50a35f4844c4605c61f9987d"
+"checksum rocket_contrib 0.3.14 (registry+https://github.com/rust-lang/crates.io-index)" = "f04b11a285fb5b0ce426241468aa0494f0b5ca981bda5198facd0106d8edd731"
 "checksum rustc-demangle 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)" = "76d7ba1feafada44f2d38eed812bd2489a03c0f5abb975799251518b68848649"
 "checksum safemem 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "e27a8b19b835f7aea908818e871f5cc3a5a186550c30773be987e155e8163d8f"
 "checksum scheduled-thread-pool 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "1a2ff3fc5223829be817806c6441279c676e454cc7da608faf03b0ccc09d3889"
