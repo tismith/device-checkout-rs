@@ -12,7 +12,7 @@ parts:
   device-checkout:
     source: https://github.com/tismith/device-checkout-rs.git
     plugin: x-rust
-    rust-revision: nightly-2018-06-05
+    rust-revision: nightly-2018-06-29
     override-build: |
       snapcraftctl build
       mkdir -p ${SNAPCRAFT_PART_INSTALL}/usr/share/device-checkout
