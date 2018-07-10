@@ -12,10 +12,25 @@ pub fn configure_logger(config: &types::Settings) {
         .verbosity(config.verbosity)
         .timestamp(config.timestamp);
 
-    let options = sentry::integrations::log::LoggerOptions {
-        ..Default::default()
-    };
-    sentry::integrations::log::init(Some(Box::new(logger)), options);
+    if config.reporting {
+        sentry::init((
+            "https://145efbb2a99d408c9394596c5b25b14f@sentry.io/1240440",
+            sentry::ClientOptions {
+                release: sentry_crate_release!(),
+                ..Default::default()
+            },
+        ));
+
+        sentry::integrations::panic::register_panic_handler();
+
+        let options = sentry::integrations::log::LoggerOptions {
+            ..Default::default()
+        };
+
+        sentry::integrations::log::init(Some(Box::new(logger)), options);
+    } else {
+        logger.init().unwrap();
+    }
 }
 
 #[cfg(test)]
