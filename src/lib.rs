@@ -11,6 +11,8 @@ pub extern crate clap;
 pub extern crate rocket;
 pub extern crate rocket_contrib;
 #[macro_use]
+pub extern crate sentry;
+#[macro_use]
 pub extern crate serde_derive;
 pub extern crate serde;
 pub extern crate serde_json;

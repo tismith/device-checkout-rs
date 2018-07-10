@@ -1,3 +1,4 @@
+use sentry;
 use stderrlog;
 use utils::types;
 
@@ -11,7 +12,10 @@ pub fn configure_logger(config: &types::Settings) {
         .verbosity(config.verbosity)
         .timestamp(config.timestamp);
 
-    logger.init().unwrap();
+    let options = sentry::integrations::log::LoggerOptions {
+        ..Default::default()
+    };
+    sentry::integrations::log::init(Some(Box::new(logger)), options);
 }
 
 #[cfg(test)]
