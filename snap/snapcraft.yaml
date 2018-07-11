@@ -27,6 +27,7 @@ apps:
   device-checkout:
     plugs:
       - network-bind
+      - network
     command: bin/device-checkout --templates ${SNAP}/usr/share/device-checkout/templates --database ${SNAP_DATA}/devices.db
     daemon: simple
     restart-condition: always

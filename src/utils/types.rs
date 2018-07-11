@@ -5,6 +5,7 @@ pub use stderrlog::Timestamp;
 pub struct Settings {
     pub verbosity: usize,
     pub quiet: bool,
+    pub reporting: bool,
     pub timestamp: Timestamp,
     pub module_path: Option<String>,
     pub template_dir: Option<String>,
@@ -25,6 +26,7 @@ impl Default for Settings {
         Settings {
             verbosity: 0,
             quiet: false,
+            reporting: true,
             timestamp: Timestamp::Off,
             module_path: None,
             template_dir: None,

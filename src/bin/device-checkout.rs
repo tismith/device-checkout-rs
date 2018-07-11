@@ -1,4 +1,5 @@
 extern crate device_checkout_lib;
+
 use device_checkout_lib::*;
 use failure::ResultExt;
 

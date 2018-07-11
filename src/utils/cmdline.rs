@@ -19,6 +19,7 @@ fn parse(matches: &clap::ArgMatches) -> Result<types::Settings, clap::Error> {
         })?
     }
     let quiet = matches.is_present("quiet");
+    let reporting = !matches.is_present("no-reporting");
     let timestamp = match matches.value_of("timestamp") {
         Some("ns") => types::Timestamp::Nanosecond,
         Some("ms") => types::Timestamp::Microsecond,
@@ -46,6 +47,7 @@ fn parse(matches: &clap::ArgMatches) -> Result<types::Settings, clap::Error> {
         timestamp,
         port,
         template_dir,
+        reporting,
         database_url: database.to_string(),
         ..Default::default()
     })
@@ -66,6 +68,12 @@ fn matcher<'a, 'b>() -> clap::App<'a, 'b> {
                 .short("q")
                 .long("quiet")
                 .help("Silence all output"),
+        )
+        .arg(
+            clap::Arg::with_name("no-reporting")
+                .short("r")
+                .long("no-reporting")
+                .help("Don't report errors to sentry.io"),
         )
         .arg(
             clap::Arg::with_name("timestamp")
