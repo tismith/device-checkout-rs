@@ -11,6 +11,9 @@ confinement: strict
 parts:
   device-checkout:
     source: https://github.com/tismith/device-checkout-rs.git
+    source-type: git
+    source-depth: 1
+    source-branch: master
     plugin: x-rust
     rust-revision: nightly-2018-06-29
     override-build: |
