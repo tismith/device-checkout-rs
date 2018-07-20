@@ -42,3 +42,11 @@ We're using [snapcraft](https://build.snapcraft.io) to automatically build snaps
 sudo snap install device-checkout
 ```
 
+Using `docker`:
+---------------
+
+```sh
+#Runs device-checkout on port 1234 with the database at /var/lib/devices.db
+docker run -p 1234:80 -v /var/lib:/var/lib/device-checkout tismith/device-checkout
+```
+
