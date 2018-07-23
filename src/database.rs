@@ -54,7 +54,7 @@ pub fn update_device(
     _config: &utils::types::Settings,
     database: &DbConn,
     device_update: &models::DeviceUpdate,
-    expected_status: &models::ReservationStatus,
+    expected_status: models::ReservationStatus,
 ) -> Result<usize, failure::Error> {
     let selector = devices.filter(
         id.eq(&device_update.id)

@@ -111,7 +111,7 @@ fn gen_device_context<'a>(
     let mut success_message = None;
     let mut error_message = None;
 
-    if let &Some(ref status_message) = status_message {
+    if let Some(ref status_message) = *status_message {
         if status_message.name() == "success" {
             success_message = Some(status_message.msg());
         } else {
@@ -176,7 +176,7 @@ pub fn post_add_devices(
         );
     };
 
-    return match add_result {
+    match add_result {
         Ok(0) | Err(_) => rocket::response::Flash::error(
             rocket::response::Redirect::to("/editDevices"),
             "Failed to add device",
@@ -185,7 +185,7 @@ pub fn post_add_devices(
             rocket::response::Redirect::to("/editDevices"),
             "Successfully added device",
         ),
-    };
+    }
 }
 
 #[cfg_attr(feature = "cargo-clippy", allow(needless_pass_by_value))]
@@ -238,7 +238,7 @@ pub fn post_edit_devices(
         );
     };
 
-    return match update_result {
+    match update_result {
         Ok(0) | Err(_) => rocket::response::Flash::error(
             rocket::response::Redirect::to("/editDevices"),
             "Failed to update device",
@@ -247,7 +247,7 @@ pub fn post_edit_devices(
             rocket::response::Redirect::to("/editDevices"),
             "Successfully updated device",
         ),
-    };
+    }
 }
 
 #[cfg_attr(feature = "cargo-clippy", allow(needless_pass_by_value))]
@@ -273,7 +273,7 @@ pub fn post_devices(
             device.comments = None;
         }
 
-        database::update_device(&*config, &*database, &device, &current_reservation_status)
+        database::update_device(&*config, &*database, &device, current_reservation_status)
     } else {
         return rocket::response::Flash::error(
             rocket::response::Redirect::to("/devices"),
@@ -281,7 +281,7 @@ pub fn post_devices(
         );
     };
 
-    return match update_result {
+    match update_result {
         Ok(0) | Err(_) => rocket::response::Flash::error(
             rocket::response::Redirect::to("/devices"),
             "Failed to update device",
@@ -290,7 +290,7 @@ pub fn post_devices(
             rocket::response::Redirect::to("/devices"),
             "Successfully updated device",
         ),
-    };
+    }
 }
 
 pub fn rocket(config: utils::types::Settings) -> Result<rocket::Rocket, failure::Error> {

@@ -3,8 +3,9 @@ use rocket;
 use schema::devices;
 use std;
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash, Serialize, Deserialize,
-         DbEnum)]
+#[derive(
+    Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash, Serialize, Deserialize, DbEnum,
+)]
 pub enum ReservationStatus {
     Available,
     Reserved,
@@ -59,9 +60,24 @@ pub struct Device {
     pub updated_at: chrono::NaiveDateTime,
 }
 
-#[cfg_attr(feature = "cargo-clippy", allow(print_literal, suspicious_else_formatting))]
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Default, Clone, Hash, Queryable, Serialize,
-         Deserialize, FromForm)]
+#[cfg_attr(
+    feature = "cargo-clippy",
+    allow(print_literal, suspicious_else_formatting)
+)]
+#[derive(
+    Debug,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Default,
+    Clone,
+    Hash,
+    Queryable,
+    Serialize,
+    Deserialize,
+    FromForm,
+)]
 pub struct DeviceUpdate {
     pub id: i32,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -73,25 +89,60 @@ pub struct DeviceUpdate {
     pub reservation_status: ReservationStatus,
 }
 
-#[cfg_attr(feature = "cargo-clippy", allow(print_literal, suspicious_else_formatting))]
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Default, Clone, Hash, Queryable, Serialize,
-         Deserialize, FromForm)]
+#[cfg_attr(
+    feature = "cargo-clippy",
+    allow(print_literal, suspicious_else_formatting)
+)]
+#[derive(
+    Debug,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Default,
+    Clone,
+    Hash,
+    Queryable,
+    Serialize,
+    Deserialize,
+    FromForm,
+)]
 pub struct DeviceEdit {
     pub id: i32,
     pub device_name: String,
     pub device_url: String,
 }
 
-#[cfg_attr(feature = "cargo-clippy", allow(print_literal, suspicious_else_formatting))]
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Default, Clone, Hash, Serialize, Deserialize,
-         FromForm)]
+#[cfg_attr(
+    feature = "cargo-clippy",
+    allow(print_literal, suspicious_else_formatting)
+)]
+#[derive(
+    Debug, PartialEq, Eq, PartialOrd, Ord, Default, Clone, Hash, Serialize, Deserialize, FromForm,
+)]
 pub struct DeviceDelete {
     pub id: i32,
 }
 
-#[cfg_attr(feature = "cargo-clippy", allow(print_literal, suspicious_else_formatting))]
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Default, Clone, Hash, Queryable, Serialize,
-         Deserialize, FromForm, Insertable)]
+#[cfg_attr(
+    feature = "cargo-clippy",
+    allow(print_literal, suspicious_else_formatting)
+)]
+#[derive(
+    Debug,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Default,
+    Clone,
+    Hash,
+    Queryable,
+    Serialize,
+    Deserialize,
+    FromForm,
+    Insertable,
+)]
 #[table_name = "devices"]
 pub struct DeviceInsert {
     pub device_name: String,

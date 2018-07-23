@@ -15,7 +15,7 @@ parts:
     source-depth: 1
     source-branch: master
     plugin: x-rust
-    rust-revision: nightly-2018-06-29
+    rust-revision: nightly-2018-07-22
     override-build: |
       snapcraftctl build
       mkdir -p ${SNAPCRAFT_PART_INSTALL}/usr/share/device-checkout
