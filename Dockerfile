@@ -2,7 +2,7 @@
 # #Runs device-checkout on port 1234 with the db at /var/lib/devices.db
 # docker run -p 1234:80
 #	-v /var/lib:/var/lib/device-checkout
-#	tismith/device-checkout
+#	tismith/device-checkout-rs
 #
 
 #setup rust build environment, cribbed from https://hub.docker.com/r/rustlang/rust/
@@ -35,7 +35,7 @@ RUN apt-get update && apt-get install -y \
 COPY --from=build /target/release/device-checkout /usr/local/bin
 COPY --from=build /templates /usr/share/device-checkout
 
-EXPOSE 8000
+EXPOSE 80
 
 ENTRYPOINT ["/usr/local/bin/device-checkout"]
 CMD ["--port 80", "--templates", "/usr/share/device-checkout", "--database", "/var/lib/device-checkout/devices.db"]
