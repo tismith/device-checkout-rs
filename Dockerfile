@@ -32,10 +32,11 @@ FROM ubuntu:18.04
 RUN apt-get update && apt-get install -y \
     libsqlite3-0
 
-COPY --from=build /target/release/device-checkout /usr/local/bin
+COPY --from=build /target/release/device-checkout /usr/bin
 COPY --from=build /templates /usr/share/device-checkout
 
-EXPOSE 80
+EXPOSE 8000
 
-ENTRYPOINT ["/usr/local/bin/device-checkout"]
-CMD ["--port 80", "--templates", "/usr/share/device-checkout", "--database", "/var/lib/device-checkout/devices.db"]
+ENTRYPOINT ["/usr/bin/device-checkout"]
+CMD ["--templates", "/usr/share/device-checkout", \
+    "--database", "/var/lib/device-checkout/devices.db"]
