@@ -3,6 +3,7 @@ device-checkout-rs
 [![Build Status](https://travis-ci.org/tismith/device-checkout-rs.svg?branch=master)](https://travis-ci.org/tismith/device-checkout-rs)
 [![codecov](https://codecov.io/gh/tismith/device-checkout-rs/branch/master/graph/badge.svg)](https://codecov.io/gh/tismith/device-checkout-rs)
 [![Snap Status](https://build.snapcraft.io/badge/tismith/device-checkout-rs.svg)](https://build.snapcraft.io/user/tismith/device-checkout-rs)
+[![Dockerhub Status](https://img.shields.io/docker/build/tismith/device-checkout-rs.svg)](https://hub.docker.com/r/tismith/device-checkout-rs/)
 
 Reimplementation of https://github.com/tismith/deviceCheckout in rust. Basically complete now. The HTTP API endpoints could use some more breadth, but the form based web ui is functional.
 
@@ -39,5 +40,13 @@ We're using [snapcraft](https://build.snapcraft.io) to automatically build snaps
 
 ```sh
 sudo snap install device-checkout
+```
+
+Using `docker`:
+---------------
+
+```sh
+#Runs device-checkout on port 1234 with the database at /var/lib/devices.db
+docker run -p 1234:8000 -v /var/lib:/var/lib/device-checkout tismith/device-checkout-rs
 ```
 
