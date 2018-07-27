@@ -1,3 +1,14 @@
+<a name="0.2.2"></a>
+## 0.2.2 (2018-07-27)
+
+
+#### Features
+
+*   Add Docker packaging support ([cfb84c8f](https://github.com/tismith/device-checkout-rs/commit/cfb84c8fdad8ca2a092a22536d8f1a360343ff3e))
+*   Add more context on errors ([6b9be7a1](https://github.com/tismith/device-checkout-rs/commit/6b9be7a16f66dcbd720655edd358bd5f8d805712))
+
+
+
 <a name="v0.2.1"></a>
 ## v0.2.1 (2018-06-06)
 
