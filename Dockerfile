@@ -1,6 +1,6 @@
 #
 # #Runs device-checkout on port 1234 with the db at /var/lib/devices.db
-# docker run -p 1234:80
+# docker run -p 1234:8000
 #	-v /var/lib:/var/lib/device-checkout
 #	tismith/device-checkout-rs
 #
