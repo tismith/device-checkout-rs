@@ -221,7 +221,7 @@ pub fn post_delete_devices(
         );
     };
 
-    return match update_result {
+    match update_result {
         Ok(0) | Err(_) => rocket::response::Flash::error(
             rocket::response::Redirect::to("/editDevices"),
             "Failed to delete device",
@@ -230,7 +230,7 @@ pub fn post_delete_devices(
             rocket::response::Redirect::to("/editDevices"),
             "Successfully deleted device",
         ),
-    };
+    }
 }
 
 #[cfg_attr(feature = "cargo-clippy", allow(needless_pass_by_value))]

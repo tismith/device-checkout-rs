@@ -95,7 +95,7 @@ pub struct DeviceUpdate {
 fn validate_device_checkout(device: &DeviceUpdate) -> Result<(), ValidationError> {
     if device.reservation_status == ReservationStatus::Reserved {
         match device.device_owner {
-            Some(ref owner) if owner.trim().len() > 0 => Ok(()),
+            Some(ref owner) if !owner.trim().is_empty() => Ok(()),
             _ => {
                 let mut e = ValidationError::new("reservation");
                 e.message = Some("Please supply a username when reserving a device".into());
