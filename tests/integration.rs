@@ -183,7 +183,7 @@ fn test_html_edit_devices() {
     let response = client
         .post("/editDevices")
         .header(rocket::http::ContentType(rocket::http::MediaType::Form))
-        .body(r#"id=1&device_name=testunit&device_url=testurl&save=SAVE"#)
+        .body(r#"id=1&device_name=testunit&device_url=http://testurl&save=SAVE"#)
         .dispatch();
 
     let mut response = follow_redirect(&client, &response).unwrap();
@@ -201,7 +201,7 @@ fn test_html_edit_devices() {
         .expect("failed to find edited device name");
 
     let _ = dom
-        .at(r#"input[name="device_url"][value="testurl"]"#)
+        .at(r#"input[name="device_url"][value="http://testurl"]"#)
         .expect("failed to find edited device url");
 }
 
@@ -250,7 +250,7 @@ fn test_html_add_devices() {
     let response = client
         .post("/addDevices")
         .header(rocket::http::ContentType(rocket::http::MediaType::Form))
-        .body(r#"device_name=testunit&device_url=testurl&add=ADD"#)
+        .body(r#"device_name=testunit&device_url=http://testurl&add=ADD"#)
         .dispatch();
 
     let mut response = follow_redirect(&client, &response).unwrap();
@@ -265,7 +265,7 @@ fn test_html_add_devices() {
     assert!(dom.at(r#"#error_message"#).is_none());
 
     let _ = dom
-        .at(r#"input[name="device_url"][value="testurl"]"#)
+        .at(r#"input[name="device_url"][value="http://testurl"]"#)
         .expect("failed to find added device");
 }
 

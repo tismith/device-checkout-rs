@@ -179,16 +179,45 @@ mod test {
 
     #[test]
     fn test_device_update_validation() {
-        let mut device_update = DeviceUpdate {
+        let mut device = DeviceUpdate {
             id: 3,
             device_owner: None,
             comments: None,
             reservation_status: ReservationStatus::Available,
         };
-        assert!(device_update.validate().is_ok());
-        device_update.reservation_status = ReservationStatus::Reserved;
-        assert!(device_update.validate().is_err());
-        device_update.device_owner = Some("toby".into());
-        assert!(device_update.validate().is_ok());
+        assert!(device.validate().is_ok());
+        device.reservation_status = ReservationStatus::Reserved;
+        assert!(device.validate().is_err());
+        device.device_owner = Some("toby".into());
+        assert!(device.validate().is_ok());
+    }
+
+    #[test]
+    fn test_device_insert_validation() {
+        let mut device = DeviceInsert {
+            device_name: "".into(),
+            device_url: "".into(),
+        };
+        assert!(device.validate().is_err());
+        device.device_name = "test".into();
+        device.device_url = "http://test".into();
+        assert!(device.validate().is_ok());
+        device.device_name = "".into();
+        assert!(device.validate().is_err());
+    }
+
+    #[test]
+    fn test_device_edit_validation() {
+        let mut device = DeviceEdit {
+            id: 0,
+            device_name: "".into(),
+            device_url: "".into(),
+        };
+        assert!(device.validate().is_err());
+        device.device_name = "test".into();
+        device.device_url = "http://test".into();
+        assert!(device.validate().is_ok());
+        device.device_name = "".into();
+        assert!(device.validate().is_err());
     }
 }
