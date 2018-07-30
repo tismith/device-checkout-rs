@@ -170,6 +170,35 @@ fn test_html_post_devices() {
 }
 
 #[test]
+fn test_html_reserve_without_user() {
+    let file = tempfile::NamedTempFile::new().expect("creating tempfile");
+    let mut config = utils::types::Settings::new();
+    config.database_url = file.path().to_string_lossy().to_owned().to_string();
+
+    database::run_migrations(&config).expect("running migrations");
+
+    let rocket = routes::rocket(config).expect("creating rocket instance");
+    let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
+
+    let response = client
+        .post("/devices")
+        .header(rocket::http::ContentType(rocket::http::MediaType::Form))
+        .body(r#"id=1&device_owner=&comments=xyzzy&reservation_status=Available"#)
+        .dispatch();
+
+    let mut response = follow_redirect(&client, &response).unwrap();
+    assert_eq!(response.status(), rocket::http::Status::Ok);
+
+    let body = response.body_string().unwrap();
+    let dom = victoria_dom::DOM::new(&body);
+
+    let _ = dom
+        .at(r#"#error_message"#)
+        .expect("failed to find error message");
+    assert!(dom.at(r#"#success_message"#).is_none());
+}
+
+#[test]
 fn test_html_edit_devices() {
     let file = tempfile::NamedTempFile::new().expect("creating tempfile");
     let mut config = utils::types::Settings::new();
@@ -183,7 +212,7 @@ fn test_html_edit_devices() {
     let response = client
         .post("/editDevices")
         .header(rocket::http::ContentType(rocket::http::MediaType::Form))
-        .body(r#"id=1&device_name=testunit&device_url=testurl&save=SAVE"#)
+        .body(r#"id=1&device_name=testunit&device_url=http://testurl&save=SAVE"#)
         .dispatch();
 
     let mut response = follow_redirect(&client, &response).unwrap();
@@ -201,8 +230,36 @@ fn test_html_edit_devices() {
         .expect("failed to find edited device name");
 
     let _ = dom
-        .at(r#"input[name="device_url"][value="testurl"]"#)
+        .at(r#"input[name="device_url"][value="http://testurl"]"#)
         .expect("failed to find edited device url");
+}
+
+#[test]
+fn test_html_edit_devices_bad_url() {
+    let file = tempfile::NamedTempFile::new().expect("creating tempfile");
+    let mut config = utils::types::Settings::new();
+    config.database_url = file.path().to_string_lossy().to_owned().to_string();
+
+    database::run_migrations(&config).expect("running migrations");
+
+    let rocket = routes::rocket(config).expect("creating rocket instance");
+    let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
+
+    let response = client
+        .post("/editDevices")
+        .header(rocket::http::ContentType(rocket::http::MediaType::Form))
+        .body(r#"id=1&device_name=testunit&device_url=notaurl&save=SAVE"#)
+        .dispatch();
+
+    let mut response = follow_redirect(&client, &response).unwrap();
+    assert_eq!(response.status(), rocket::http::Status::Ok);
+    let body = response.body_string().unwrap();
+
+    let dom = victoria_dom::DOM::new(&body);
+    let _ = dom
+        .at(r#"#error_message"#)
+        .expect("failed to find error message");
+    assert!(dom.at(r#"#success_message"#).is_none());
 }
 
 #[test]
@@ -250,7 +307,7 @@ fn test_html_add_devices() {
     let response = client
         .post("/addDevices")
         .header(rocket::http::ContentType(rocket::http::MediaType::Form))
-        .body(r#"device_name=testunit&device_url=testurl&add=ADD"#)
+        .body(r#"device_name=testunit&device_url=http://testurl&add=ADD"#)
         .dispatch();
 
     let mut response = follow_redirect(&client, &response).unwrap();
@@ -265,8 +322,37 @@ fn test_html_add_devices() {
     assert!(dom.at(r#"#error_message"#).is_none());
 
     let _ = dom
-        .at(r#"input[name="device_url"][value="testurl"]"#)
+        .at(r#"input[name="device_url"][value="http://testurl"]"#)
         .expect("failed to find added device");
+}
+
+#[test]
+fn test_html_add_devices_bad_url() {
+    let file = tempfile::NamedTempFile::new().expect("creating tempfile");
+    let mut config = utils::types::Settings::new();
+    config.database_url = file.path().to_string_lossy().to_owned().to_string();
+
+    database::run_migrations(&config).expect("running migrations");
+
+    let rocket = routes::rocket(config).expect("creating rocket instance");
+    let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
+
+    let response = client
+        .post("/addDevices")
+        .header(rocket::http::ContentType(rocket::http::MediaType::Form))
+        .body(r#"device_name=testunit&device_url=notaurl&add=ADD"#)
+        .dispatch();
+
+    let mut response = follow_redirect(&client, &response).unwrap();
+    assert_eq!(response.status(), rocket::http::Status::Ok);
+    let body = response.body_string().unwrap();
+
+    let dom = victoria_dom::DOM::new(&body);
+
+    let _ = dom
+        .at(r#"#error_message"#)
+        .expect("failed to find error message");
+    assert!(dom.at(r#"#success_message"#).is_none());
 }
 
 #[test]
