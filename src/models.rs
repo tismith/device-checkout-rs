@@ -2,6 +2,7 @@ use chrono;
 use rocket;
 use schema::devices;
 use std;
+use validator::{Validate, ValidationError};
 
 #[derive(
     Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash, Serialize, Deserialize, DbEnum,
@@ -77,7 +78,9 @@ pub struct Device {
     Serialize,
     Deserialize,
     FromForm,
+    Validate,
 )]
+#[validate(schema(function = "validate_device_checkout"))]
 pub struct DeviceUpdate {
     pub id: i32,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -87,6 +90,21 @@ pub struct DeviceUpdate {
     #[serde(default)]
     pub comments: Option<String>,
     pub reservation_status: ReservationStatus,
+}
+
+fn validate_device_checkout(device: &DeviceUpdate) -> Result<(), ValidationError> {
+    if device.reservation_status == ReservationStatus::Reserved {
+        match device.device_owner {
+            Some(ref owner) if owner.trim().len() > 0 => Ok(()),
+            _ => {
+                let mut e = ValidationError::new("reservation");
+                e.message = Some("Please supply a username when reserving a device".into());
+                Err(e)
+            }
+        }
+    } else {
+        Ok(())
+    }
 }
 
 #[cfg_attr(
@@ -106,10 +124,13 @@ pub struct DeviceUpdate {
     Serialize,
     Deserialize,
     FromForm,
+    Validate,
 )]
 pub struct DeviceEdit {
     pub id: i32,
+    #[validate(length(min = "1", message = "Device names cannot be empty"))]
     pub device_name: String,
+    #[validate(url(message = "URL was invalid"))]
     pub device_url: String,
 }
 
@@ -142,9 +163,32 @@ pub struct DeviceDelete {
     Deserialize,
     FromForm,
     Insertable,
+    Validate,
 )]
 #[table_name = "devices"]
 pub struct DeviceInsert {
+    #[validate(length(min = "1", message = "Device names cannot be empty"))]
     pub device_name: String,
+    #[validate(url(message = "URL was invalid"))]
     pub device_url: String,
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_device_update_validation() {
+        let mut device_update = DeviceUpdate {
+            id: 3,
+            device_owner: None,
+            comments: None,
+            reservation_status: ReservationStatus::Available,
+        };
+        assert!(device_update.validate().is_ok());
+        device_update.reservation_status = ReservationStatus::Reserved;
+        assert!(device_update.validate().is_err());
+        device_update.device_owner = Some("toby".into());
+        assert!(device_update.validate().is_ok());
+    }
 }

@@ -8,7 +8,10 @@ use models;
 use pool;
 use rocket;
 use rocket_contrib;
+use std;
 use utils;
+use validator;
+use validator::Validate;
 
 pub fn html_routes() -> Vec<rocket::Route> {
     routes![
@@ -168,6 +171,17 @@ pub fn post_add_devices(
 
     let add_result = if let Ok(device_add) = device_add {
         let device = device_add.get();
+        if let Err(errors) = device.validate() {
+            let errors = errors.inner();
+            let msg = match find_first_validation_message(&errors) {
+                Some(m) => m,
+                None => "Failed to parse form data",
+            };
+            return rocket::response::Flash::error(
+                rocket::response::Redirect::to("/editDevices"),
+                msg,
+            );
+        }
         database::insert_device(&*config, &*database, device)
     } else {
         return rocket::response::Flash::error(
@@ -230,6 +244,17 @@ pub fn post_edit_devices(
 
     let update_result: Result<_, failure::Error> = if let Ok(device_edit) = device_edit {
         let device = device_edit.get();
+        if let Err(errors) = device.validate() {
+            let errors = errors.inner();
+            let msg = match find_first_validation_message(&errors) {
+                Some(m) => m,
+                None => "Failed to parse form data",
+            };
+            return rocket::response::Flash::error(
+                rocket::response::Redirect::to("/editDevices"),
+                msg,
+            );
+        }
         database::edit_device(&*config, &*database, device)
     } else {
         return rocket::response::Flash::error(
@@ -261,6 +286,7 @@ pub fn post_devices(
 
     let update_result = if let Ok(device_update) = device_update {
         let mut device = device_update.into_inner();
+
         //save the old reservation status around for the sql query
         let current_reservation_status = device.reservation_status;
 
@@ -271,6 +297,15 @@ pub fn post_devices(
         if device.reservation_status == models::ReservationStatus::Available {
             device.device_owner = None;
             device.comments = None;
+        }
+
+        if let Err(errors) = device.validate() {
+            let errors = errors.inner();
+            let msg = match find_first_validation_message(&errors) {
+                Some(m) => m,
+                None => "Failed to parse form data",
+            };
+            return rocket::response::Flash::error(rocket::response::Redirect::to("/devices"), msg);
         }
 
         database::update_device(&*config, &*database, &device, current_reservation_status)
@@ -309,4 +344,20 @@ pub fn rocket(config: utils::types::Settings) -> Result<rocket::Rocket, failure:
         .attach(rocket_contrib::Template::fairing())
         .mount("/", html_routes())
         .mount("/api/", api_routes()))
+}
+
+type ValidationErrorsInner =
+    std::collections::HashMap<&'static str, Vec<validator::ValidationError>>;
+
+fn find_first_validation_message<'a>(
+    errors: &'a ValidationErrorsInner,
+) -> Option<&'a std::borrow::Cow<'static, str>> {
+    for es in errors {
+        for e in es.1 {
+            if let Some(ref e) = e.message {
+                return Some(e);
+            }
+        }
+    }
+    None
 }

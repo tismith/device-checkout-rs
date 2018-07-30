@@ -22,6 +22,9 @@ pub extern crate diesel_migrations;
 pub extern crate diesel_derive_enum;
 pub extern crate chrono;
 pub extern crate exitfailure;
+#[macro_use]
+extern crate validator_derive;
+extern crate validator;
 
 pub mod database;
 pub mod models;
