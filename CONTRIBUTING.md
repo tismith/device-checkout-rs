@@ -13,3 +13,12 @@ I use a [conventional](https://github.com/ajoslin/conventional-changelog/blob/a5
     - `wip` - A work in progress commit (Should typically be `git rebase`'ed away)
     - `chore` - Catch all or things that have to do with the build system, etc
  * The `COMPONENT` is optional, and may be a single file, directory, or logical component. Parenthesis can be omitted if you are opting not to use the `COMPONENT`.
+
+### Releasing
+
+Remember to bump the version numbers in:
+- `Cargo.toml`
+- `snap/snapcraft.yaml`
+
+Also remember to update `CHANGELOG.md` with something like:
+`clog --setversion 0.2.3`
