@@ -1,3 +1,13 @@
+<a name="0.2.3"></a>
+## 0.2.3 (2018-08-02)
+
+
+#### Features
+
+*   Add better validation error messages ([28d28807](https://github.com/tismith/device-checkout-rs/commit/28d288072a14711143d99d972a6ae100c1ceb4ea))
+
+
+
 <a name="0.2.2"></a>
 ## 0.2.2 (2018-07-27)
 
@@ -9,8 +19,8 @@
 
 
 
-<a name="v0.2.1"></a>
-## v0.2.1 (2018-06-06)
+<a name="0.2.1"></a>
+## 0.2.1 (2018-06-06)
 
 
 #### Bug Fixes
