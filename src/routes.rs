@@ -105,8 +105,8 @@ fn format_device(device: models::Device) -> PerDeviceContext {
 }
 
 fn gen_device_context<'a>(
-    config: &'a utils::types::Settings,
-    database: &'a database::DbConn,
+    config: &utils::types::Settings,
+    database: &database::DbConn,
     status_message: &'a Option<rocket::request::FlashMessage>,
 ) -> Result<DevicesContext<'a>, failure::Error> {
     trace!("gen_device_context");
