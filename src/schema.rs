@@ -16,6 +16,8 @@ table! {
     rooms (id) {
         id -> Integer,
         room_name -> Text,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
     }
 }
 
