@@ -8,5 +8,17 @@ table! {
         reservation_status -> ::models::ReservationStatusMapping,
         created_at -> Timestamp,
         updated_at -> Timestamp,
+        room_id -> Integer,
     }
 }
+
+table! {
+    rooms (id) {
+        id -> Integer,
+        room_name -> Text,
+    }
+}
+
+joinable!(devices -> rooms (room_id));
+
+allow_tables_to_appear_in_same_query!(devices, rooms,);
