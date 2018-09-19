@@ -20,7 +20,7 @@ serde_json = "1.0"
 diesel_migrations = "1.2.0"
 exitfailure = "0.5.1"
 validator = "0.7.1"
-validator_derive = "0.7.1"
+validator_derive = "0.8.0"
 
 [dependencies.chrono]
 version = "0.4"
