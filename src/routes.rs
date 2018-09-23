@@ -172,7 +172,7 @@ pub fn post_add_devices(
     let add_result = if let Ok(device_add) = device_add {
         let device = device_add.get();
         if let Err(errors) = device.validate() {
-            let errors = errors.inner();
+            let errors = errors.field_errors();
             let msg = match find_first_validation_message(&errors) {
                 Some(m) => m,
                 None => "Failed to parse form data",
@@ -245,7 +245,7 @@ pub fn post_edit_devices(
     let update_result: Result<_, failure::Error> = if let Ok(device_edit) = device_edit {
         let device = device_edit.get();
         if let Err(errors) = device.validate() {
-            let errors = errors.inner();
+            let errors = errors.field_errors();
             let msg = match find_first_validation_message(&errors) {
                 Some(m) => m,
                 None => "Failed to parse form data",
@@ -300,7 +300,7 @@ pub fn post_devices(
         }
 
         if let Err(errors) = device.validate() {
-            let errors = errors.inner();
+            let errors = errors.field_errors();
             let msg = match find_first_validation_message(&errors) {
                 Some(m) => m,
                 None => "Failed to parse form data",
