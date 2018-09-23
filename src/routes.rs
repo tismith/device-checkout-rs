@@ -49,16 +49,14 @@ pub fn api_get_device(
                 rocket::http::Status::InternalServerError,
                 "500 Internal Server Error".to_string(),
             )
-        })
-        .and_then(|devices| {
+        }).and_then(|devices| {
             devices.ok_or_else(|| {
                 rocket::response::status::Custom(
                     rocket::http::Status::NotFound,
                     "404 Not Found".to_string(),
                 )
             })
-        })
-        .map(rocket_contrib::Json)
+        }).map(rocket_contrib::Json)
 }
 
 #[cfg_attr(feature = "cargo-clippy", allow(needless_pass_by_value))]

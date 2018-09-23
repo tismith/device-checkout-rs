@@ -60,36 +60,31 @@ fn matcher<'a, 'b>() -> clap::App<'a, 'b> {
                 .short("v")
                 .multiple(true)
                 .help("Increase message verbosity, maximum 4"),
-        )
-        .arg(
+        ).arg(
             clap::Arg::with_name("quiet")
                 .short("q")
                 .long("quiet")
                 .help("Silence all output"),
-        )
-        .arg(
+        ).arg(
             clap::Arg::with_name("timestamp")
                 .short("t")
                 .long("timestamp")
                 .help("prepend log lines with a timestamp")
                 .takes_value(true)
                 .possible_values(&["none", "sec", "ms", "ns"]),
-        )
-        .arg(
+        ).arg(
             clap::Arg::with_name("port")
                 .short("p")
                 .long("port")
                 .help("tcp port number to listen on")
                 .default_value("8000")
                 .takes_value(true),
-        )
-        .arg(
+        ).arg(
             clap::Arg::with_name("templates")
                 .long("templates")
                 .help("directory for templates")
                 .takes_value(true),
-        )
-        .arg(
+        ).arg(
             clap::Arg::with_name("database")
                 .short("d")
                 .long("database")

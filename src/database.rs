@@ -65,8 +65,7 @@ pub fn update_device(
             device_owner.eq(&device_update.device_owner),
             comments.eq(&device_update.comments),
             reservation_status.eq(&device_update.reservation_status),
-        ))
-        .execute(database)?)
+        )).execute(database)?)
 }
 
 ///Edits the details specific to the device, i.e the name and url
@@ -79,8 +78,7 @@ pub fn edit_device(
         .set((
             device_name.eq(&device_edit.device_name),
             device_url.eq(&device_edit.device_url),
-        ))
-        .execute(database)?)
+        )).execute(database)?)
 }
 
 ///Edits the details specific to the device, i.e the name and url
