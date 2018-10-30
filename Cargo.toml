@@ -9,7 +9,7 @@ lto = true
 
 [dependencies]
 failure = "0.1.3"
-log = "0.4.5"
+log = "0.4.6"
 stderrlog = "0.4.1"
 clap = "2.32.0"
 rocket = "0.3.17"
