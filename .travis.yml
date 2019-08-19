@@ -1,6 +1,6 @@
 language: rust
 rust:
-        - nightly-2018-08-24
+        - nightly-2019-08-09
 cache: cargo
 env: NAME='cargo-travis'
 sudo: required # travis-ci/travis-ci#9061
