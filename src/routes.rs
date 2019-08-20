@@ -49,14 +49,16 @@ pub fn api_get_device(
                 rocket::http::Status::InternalServerError,
                 "500 Internal Server Error".to_string(),
             )
-        }).and_then(|devices| {
+        })
+        .and_then(|devices| {
             devices.ok_or_else(|| {
                 rocket::response::status::Custom(
                     rocket::http::Status::NotFound,
                     "404 Not Found".to_string(),
                 )
             })
-        }).map(rocket_contrib::json::Json)
+        })
+        .map(rocket_contrib::json::Json)
 }
 
 #[cfg_attr(feature = "cargo-clippy", allow(needless_pass_by_value))]
@@ -142,7 +144,9 @@ pub fn get_devices(
     trace!("get_devices()");
 
     let context = gen_device_context(&*config, &*database, &status_message)?;
-    Ok(rocket_contrib::templates::Template::render("devices", &context))
+    Ok(rocket_contrib::templates::Template::render(
+        "devices", &context,
+    ))
 }
 
 #[cfg_attr(feature = "cargo-clippy", allow(needless_pass_by_value))]
@@ -155,7 +159,10 @@ pub fn get_edit_devices(
     trace!("get_edit_devices()");
 
     let context = gen_device_context(&*config, &*database, &status_message)?;
-    Ok(rocket_contrib::templates::Template::render("edit_devices", &context))
+    Ok(rocket_contrib::templates::Template::render(
+        "edit_devices",
+        &context,
+    ))
 }
 
 #[cfg_attr(feature = "cargo-clippy", allow(needless_pass_by_value))]
@@ -163,7 +170,10 @@ pub fn get_edit_devices(
 pub fn post_add_devices(
     config: rocket::State<utils::types::Settings>,
     database: pool::DbConn,
-    device_add: Result<rocket::request::LenientForm<models::DeviceInsert>, rocket::request::FormError>,
+    device_add: Result<
+        rocket::request::LenientForm<models::DeviceInsert>,
+        rocket::request::FormError,
+    >,
 ) -> rocket::response::Flash<rocket::response::Redirect> {
     trace!("post_add_devices()");
 
@@ -205,7 +215,10 @@ pub fn post_add_devices(
 pub fn post_delete_devices(
     config: rocket::State<utils::types::Settings>,
     database: pool::DbConn,
-    device_edit: Result<rocket::request::LenientForm<models::DeviceDelete>, rocket::request::FormError>,
+    device_edit: Result<
+        rocket::request::LenientForm<models::DeviceDelete>,
+        rocket::request::FormError,
+    >,
 ) -> rocket::response::Flash<rocket::response::Redirect> {
     trace!("post_delete_devices()");
 
@@ -236,7 +249,10 @@ pub fn post_delete_devices(
 pub fn post_edit_devices(
     config: rocket::State<utils::types::Settings>,
     database: pool::DbConn,
-    device_edit: Result<rocket::request::LenientForm<models::DeviceEdit>, rocket::request::FormError>,
+    device_edit: Result<
+        rocket::request::LenientForm<models::DeviceEdit>,
+        rocket::request::FormError,
+    >,
 ) -> rocket::response::Flash<rocket::response::Redirect> {
     trace!("post_edit_devices()");
 

@@ -1,6 +1,5 @@
 #![feature(plugin, proc_macro_hygiene, decl_macro, custom_attribute)]
 
-
 //#[macro_use] //this crate has macros, currently unused
 pub extern crate failure;
 #[macro_use]
@@ -8,7 +7,8 @@ pub extern crate log;
 pub extern crate stderrlog;
 #[macro_use]
 pub extern crate clap;
-#[macro_use] pub extern crate rocket;
+#[macro_use]
+pub extern crate rocket;
 pub extern crate rocket_contrib;
 #[macro_use]
 pub extern crate serde_derive;

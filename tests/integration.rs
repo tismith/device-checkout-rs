@@ -420,10 +420,9 @@ fn test_reserve_already_reserved() {
     let _ = dom
         .at(r#"input[name="device_owner"][value="Owner"]"#)
         .expect("failed to find owner");
-    assert!(
-        dom.at(r#"input[name="device_owner"][value="Owner2"]"#)
-            .is_none()
-    );
+    assert!(dom
+        .at(r#"input[name="device_owner"][value="Owner2"]"#)
+        .is_none());
 
     assert_eq!(response.status(), rocket::http::Status::Ok);
 }
@@ -468,10 +467,9 @@ fn test_returning_clears_fields() {
     assert!(dom.at(r#"#error_message"#).is_none());
 
     //test that the old values for the reservation are gone
-    assert!(
-        dom.at(r#"input[name="device_owner"][value="Owner"]"#)
-            .is_none()
-    );
+    assert!(dom
+        .at(r#"input[name="device_owner"][value="Owner"]"#)
+        .is_none());
     assert!(dom.at(r#"input[name="comments"][value="xyzzy"]"#).is_none());
 
     //but that they still exist
