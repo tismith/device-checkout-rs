@@ -49,6 +49,20 @@ pub fn get_device(
         .next())
 }
 
+///Lookup a single device by id
+pub fn get_device_by_id(
+    _config: &utils::types::Settings,
+    database: &DbConn,
+    requested_id: i32,
+) -> Result<Option<models::Device>, failure::Error> {
+    Ok(devices
+        .filter(id.eq(requested_id))
+        .load::<models::Device>(database)
+        .with_context(|_| "Error loading devices".to_string())?
+        .into_iter()
+        .next())
+}
+
 ///Updates a device, designed for the common case on the main http form
 pub fn update_device(
     _config: &utils::types::Settings,

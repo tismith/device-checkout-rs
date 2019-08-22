@@ -26,7 +26,11 @@ pub fn html_routes() -> Vec<rocket::Route> {
 }
 
 pub fn api_routes() -> Vec<rocket::Route> {
-    routes![self::api_get_device, self::api_get_devices]
+    routes![
+        self::api_get_device,
+        self::api_get_devices,
+        self::api_delete_reservation,
+    ]
 }
 
 #[get("/")]
@@ -70,6 +74,38 @@ pub fn api_get_devices(
     trace!("api_get_devices()");
     let devices = database::get_devices(&*config, &*database)?;
     Ok(rocket_contrib::json::Json(devices))
+}
+
+#[delete("/reservations/<id>")]
+pub fn api_delete_reservation(
+    config: rocket::State<utils::types::Settings>,
+    database: pool::DbConn,
+    id: i32,
+) -> rocket::http::Status {
+    trace!("api_delete_reservation()");
+    /* For now the id of a reservation is the id of the device. */
+    if let Ok(None) = database::get_device_by_id(&*config, &*database, id) {
+        return rocket::http::Status::NotFound;
+    }
+
+    let device_update = models::DeviceUpdate {
+        id: id,
+        reservation_status: models::ReservationStatus::Available,
+        comments: None,
+        device_owner: None,
+    };
+    let update_result = database::update_device(
+        &*config,
+        &*database,
+        &device_update,
+        models::ReservationStatus::Reserved,
+    );
+
+    match update_result {
+        Ok(0) => rocket::http::Status::BadRequest,
+        Err(_) => rocket::http::Status::InternalServerError,
+        _ => rocket::http::Status::NoContent,
+    }
 }
 
 #[derive(Serialize)]

@@ -58,9 +58,13 @@ paths:
           format: int32
       responses:
         '204':
-          description: reservation deleted
+          description: Reservation deleted
+        '400':
+          description: Reservation has already been ended
+        '404':
+          description: Cannot find reservation with given ID
         default:
-          description: unexpected error
+          description: Unexpected error
           content:
             application/json:
               schema:

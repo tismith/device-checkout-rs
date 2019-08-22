@@ -43,6 +43,36 @@ fn test_api_get_devices() {
 }
 
 #[test]
+fn test_api_delete_reservation() {
+    let file = tempfile::NamedTempFile::new().expect("creating tempfile");
+    let mut config = utils::types::Settings::new();
+    config.database_url = file.path().to_string_lossy().to_owned().to_string();
+
+    database::run_migrations(&config).expect("running migrations");
+    let rocket = routes::rocket(config).expect("creating rocket instance");
+    let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
+
+    /* TODO: Change this when the API for making reservations is ready. */
+    let response = client
+        .post("/devices")
+        .header(rocket::http::ContentType(rocket::http::MediaType::Form))
+        .body(r#"id=1&device_owner=Owner&comments=xyzzy&reservation_status=Available"#)
+        .dispatch();
+    let response = follow_redirect(&client, &response).unwrap();
+    assert_eq!(response.status(), rocket::http::Status::Ok);
+
+    let response = client.delete("/api/reservations/1").dispatch();
+    assert_eq!(response.status(), rocket::http::Status::NoContent);
+
+    /* Once a reservation has ended, you can't end it again. */
+    let response = client.delete("/api/reservations/1").dispatch();
+    assert_eq!(response.status(), rocket::http::Status::BadRequest);
+
+    let response = client.delete("/api/reservations/9000").dispatch();
+    assert_eq!(response.status(), rocket::http::Status::NotFound);
+}
+
+#[test]
 fn test_html_get_devices() {
     let file = tempfile::NamedTempFile::new().expect("creating tempfile");
     let mut config = utils::types::Settings::new();
