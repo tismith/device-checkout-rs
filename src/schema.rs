@@ -8,5 +8,19 @@ table! {
         reservation_status -> ::models::ReservationStatusMapping,
         created_at -> Timestamp,
         updated_at -> Timestamp,
+        pool_id -> Integer,
     }
 }
+
+table! {
+    pools (id) {
+        id -> Integer,
+        pool_name -> Text,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+joinable!(devices -> pools (pool_id));
+
+allow_tables_to_appear_in_same_query!(devices, pools,);
