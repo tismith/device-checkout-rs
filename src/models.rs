@@ -206,6 +206,37 @@ pub struct DeviceInsert {
     pub device_url: String,
 }
 
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Queryable, Serialize, Deserialize)]
+pub struct Reservation {
+    pub id: i32,
+    pub device_owner: String,
+    pub comments: Option<String>,
+    pub device: Device,
+}
+
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Serialize, Deserialize)]
+pub struct ReservationRequest {
+    pub device_owner: Option<String>,
+    pub comments: Option<String>,
+    pub device: ReservationRequestDevice,
+}
+
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Serialize, Deserialize)]
+pub struct ReservationRequestDevice {
+    pub id: Option<i32>,
+    pub device_name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default)]
+    pub device_url: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default)]
+    pub device_owner: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default)]
+    pub comments: Option<String>,
+    pub pool_id: i32,
+}
+
 #[cfg(test)]
 mod test {
     use super::*;

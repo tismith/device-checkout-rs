@@ -73,6 +73,36 @@ fn test_api_delete_reservation() {
 }
 
 #[test]
+fn test_api_post_reservations() {
+    let file = tempfile::NamedTempFile::new().expect("creating tempfile");
+    let mut config = utils::types::Settings::new();
+    config.database_url = file.path().to_string_lossy().to_owned().to_string();
+
+    database::run_migrations(&config).expect("running migrations");
+    let rocket = routes::rocket(config).expect("creating rocket instance");
+    let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
+
+    let mut response = client
+        .post("/api/reservations")
+        .header(rocket::http::ContentType::JSON)
+        .body(r#"{"device_owner":"Barry","comments":"test reservation","device":{"pool_id":1}}"#)
+        .dispatch();
+    assert_eq!(response.status(), rocket::http::Status::Ok);
+    let body = response.body_string().unwrap();
+    let v: serde_json::Value = serde_json::from_str(&body).unwrap();
+    assert_eq!(v["device_owner"], "Barry");
+    assert_eq!(v["comments"], "test reservation");
+    assert_eq!(v["device"]["reservation_status"], "Reserved");
+
+    let response = client
+        .post("/api/reservations")
+        .header(rocket::http::ContentType::JSON)
+        .body(r#"{"device_owner":"Barry","comments":"pool with no devices","device":{"pool_id":100}}"#)
+        .dispatch();
+    assert_eq!(response.status(), rocket::http::Status::NotFound);
+}
+
+#[test]
 fn test_html_get_devices() {
     let file = tempfile::NamedTempFile::new().expect("creating tempfile");
     let mut config = utils::types::Settings::new();
