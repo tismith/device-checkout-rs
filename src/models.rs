@@ -1,6 +1,9 @@
+//see https://github.com/rust-lang/rust/issues/50504
+//diesel's QueryId is triggering warnings on nightly
+#[allow(proc_macro_derive_resolution_fallback)]
 use chrono;
 use rocket;
-use schema::devices;
+use schema::*;
 use std;
 use validator::{Validate, ValidationError};
 
@@ -43,7 +46,21 @@ impl<'v> FromFormValue<'v> for ReservationStatus {
 }
 
 //deliberately not making this Copy
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Queryable, Serialize, Deserialize)]
+#[derive(
+    Debug,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Clone,
+    Hash,
+    Identifiable,
+    Queryable,
+    Associations,
+    Serialize,
+    Deserialize,
+)]
+#[belongs_to(Room)]
 pub struct Device {
     pub id: i32,
     pub device_name: String,
@@ -57,6 +74,28 @@ pub struct Device {
     #[serde(default)]
     pub comments: Option<String>,
     pub reservation_status: ReservationStatus,
+    pub created_at: chrono::NaiveDateTime,
+    pub updated_at: chrono::NaiveDateTime,
+    pub room_id: i32,
+}
+
+#[derive(
+    Debug,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Clone,
+    Hash,
+    Identifiable,
+    Queryable,
+    Insertable,
+    Serialize,
+    Deserialize,
+)]
+pub struct Room {
+    pub id: i32,
+    pub room_name: String,
     pub created_at: chrono::NaiveDateTime,
     pub updated_at: chrono::NaiveDateTime,
 }
@@ -74,7 +113,6 @@ pub struct Device {
     Default,
     Clone,
     Hash,
-    Queryable,
     Serialize,
     Deserialize,
     FromForm,
@@ -120,7 +158,6 @@ fn validate_device_checkout(device: &DeviceUpdate) -> Result<(), ValidationError
     Default,
     Clone,
     Hash,
-    Queryable,
     Serialize,
     Deserialize,
     FromForm,
@@ -158,7 +195,6 @@ pub struct DeviceDelete {
     Default,
     Clone,
     Hash,
-    Queryable,
     Serialize,
     Deserialize,
     FromForm,
