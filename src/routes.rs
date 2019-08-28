@@ -160,6 +160,7 @@ struct PerDeviceContext {
 #[derive(Serialize, Default)]
 struct DevicesContext<'a> {
     devices: Vec<PerDeviceContext>,
+    pools: Vec<models::Pool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     error_message: Option<&'a str>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -205,8 +206,11 @@ fn gen_device_context<'a>(
         .map(format_device)
         .collect();
 
+    let pools: Vec<_> = database::get_pools(config, database)?;
+
     Ok(DevicesContext {
         devices,
+        pools,
         error_message,
         success_message,
     })

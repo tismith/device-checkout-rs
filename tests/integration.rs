@@ -272,7 +272,7 @@ fn test_html_edit_devices() {
     let response = client
         .post("/editDevices")
         .header(rocket::http::ContentType(rocket::http::MediaType::Form))
-        .body(r#"id=1&device_name=testunit&device_url=http://testurl&save=SAVE"#)
+        .body(r#"id=1&device_name=testunit&device_url=http://testurl&pool_id=1&save=SAVE"#)
         .dispatch();
 
     let mut response = follow_redirect(&client, &response).unwrap();
@@ -367,7 +367,7 @@ fn test_html_add_devices() {
     let response = client
         .post("/addDevices")
         .header(rocket::http::ContentType(rocket::http::MediaType::Form))
-        .body(r#"device_name=testunit&device_url=http://testurl&add=ADD"#)
+        .body(r#"device_name=testunit&device_url=http://testurl&pool_id=1&add=ADD"#)
         .dispatch();
 
     let mut response = follow_redirect(&client, &response).unwrap();

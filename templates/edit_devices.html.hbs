@@ -53,28 +53,38 @@ $("#confirm-modal-{{this.device.id}}").click(function(){
 					<tr>
 						<th>Device name</th>
 						<th>URL</th>
+						<th>Device Pool</th>
 						<th></th>
 						<th></th>
 					</tr>
 				</thead>
-				{{#each devices}}
+				{{#each devices as |device|}}
 				<tr>
 					<td>
-						<input type="text" name="device_name" class="form-control" value="{{this.device.device_name}}" form="edit-{{this.device.id}}">
+						<input type="text" name="device_name" class="form-control" value="{{device.device.device_name}}" form="edit-{{device.device.id}}">
 					</td>
 					<td>
-						<input type="text" name="device_url" class="form-control" value="{{this.device.device_url}}" form="edit-{{this.device.id}}">
+						<input type="text" name="device_url" class="form-control" value="{{device.device.device_url}}" form="edit-{{device.device.id}}">
 					</td>
 					<td>
-						<form id="edit-{{this.device.id}}" name="edit-{{this.device.id}}" action="/editDevices" method="post">
-							<input type="hidden" name="id" value="{{this.device.id}}" class="form-control">
+						<select name="pool_id" class="form-control" form="edit-{{device.device.id}}">
+							{{#each ../pools as |pool|}}
+							<option value="{{pool.id}}" {{#if (eq pool.id device.device.pool_id)}}selected{{/if}}>
+								{{pool.pool_name}}
+							</option>
+							{{/each}}
+						</select>
+					</td>
+					<td>
+						<form id="edit-{{device.device.id}}" name="edit-{{device.device.id}}" action="/editDevices" method="post">
+							<input type="hidden" name="id" value="{{device.device.id}}" class="form-control">
 							<input type="submit" class="btn btn-primary" name="save" value="SAVE">
 						</form>
 					</td >
 					<td>
-						<form id="delete-{{this.device.id}}" name="delete-{{this.device.id}}" action="/deleteDevices" method="post">
-							<input type="hidden" name="id" value="{{this.device.id}}" class="form-control">
-							<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirm-delete-{{this.device.id}}">
+						<form id="delete-{{device.device.id}}" name="delete-{{device.device.id}}" action="/deleteDevices" method="post">
+							<input type="hidden" name="id" value="{{device.device.id}}" class="form-control">
+							<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirm-delete-{{device.device.id}}">
 								DELETE
 							</button>
 						</form>
@@ -87,6 +97,13 @@ $("#confirm-modal-{{this.device.id}}").click(function(){
 					</td>
 					<td>
 						<input type="text" name="device_url" class="form-control" value="" form="_internal_new_device">
+					</td>
+					<td>
+						<select name="pool_id" class="form-control" form="_internal_new_device">
+							{{#each pools}}
+							<option value="{{this.id}}">{{this.pool_name}}</option>
+							{{/each}}
+						</select>
 					</td>
 					<td>
 						<form id="_internal_new_device" name="_internal_new_device" action="/addDevices" method="post">

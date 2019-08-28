@@ -8,6 +8,7 @@ use self::diesel::prelude::*;
 use failure::ResultExt;
 use schema::devices;
 use schema::devices::dsl::*;
+use schema::pools::dsl::pools;
 
 pub type DbConn = diesel::sqlite::SqliteConnection;
 
@@ -111,6 +112,7 @@ pub fn edit_device(
         .set((
             device_name.eq(&device_edit.device_name),
             device_url.eq(&device_edit.device_url),
+            pool_id.eq(&device_edit.pool_id),
         ))
         .execute(database)?)
 }
@@ -133,4 +135,14 @@ pub fn insert_device(
     Ok(diesel::insert_into(devices::table)
         .values(device_insert)
         .execute(database)?)
+}
+
+///Get all the pools
+pub fn get_pools(
+    _config: &utils::types::Settings,
+    database: &DbConn,
+) -> Result<Vec<models::Pool>, failure::Error> {
+    Ok(pools
+        .load::<models::Pool>(database)
+        .with_context(|_| "Error loading pools".to_string())?)
 }

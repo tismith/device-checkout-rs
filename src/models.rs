@@ -166,6 +166,7 @@ pub struct DeviceEdit {
     pub device_name: String,
     #[validate(url(message = "URL was invalid"))]
     pub device_url: String,
+    pub pool_id: i32,
 }
 
 #[cfg_attr(
@@ -204,6 +205,7 @@ pub struct DeviceInsert {
     pub device_name: String,
     #[validate(url(message = "URL was invalid"))]
     pub device_url: String,
+    pub pool_id: i32,
 }
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Queryable, Serialize, Deserialize)]
@@ -261,6 +263,7 @@ mod test {
         let mut device = DeviceInsert {
             device_name: "".into(),
             device_url: "".into(),
+            pool_id: 0,
         };
         assert!(device.validate().is_err());
         device.device_name = "test".into();
@@ -276,6 +279,7 @@ mod test {
             id: 0,
             device_name: "".into(),
             device_url: "".into(),
+            pool_id: 0,
         };
         assert!(device.validate().is_err());
         device.device_name = "test".into();
