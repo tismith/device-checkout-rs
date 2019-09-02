@@ -14,7 +14,7 @@ parts:
     source-type: git
     source-depth: 1
     source-branch: master
-    plugin: x-rust
+    plugin: rust
     rust-revision: nightly-2019-08-09
     override-build: |
       snapcraftctl build
