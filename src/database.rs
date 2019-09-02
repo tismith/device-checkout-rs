@@ -8,6 +8,7 @@ use self::diesel::prelude::*;
 use failure::ResultExt;
 use schema::devices;
 use schema::devices::dsl::*;
+use schema::pools::dsl::pools;
 
 pub type DbConn = diesel::sqlite::SqliteConnection;
 
@@ -49,6 +50,38 @@ pub fn get_device(
         .next())
 }
 
+///Lookup a single device by id
+pub fn get_device_by_id(
+    _config: &utils::types::Settings,
+    database: &DbConn,
+    requested_id: i32,
+) -> Result<Option<models::Device>, failure::Error> {
+    Ok(devices
+        .filter(id.eq(requested_id))
+        .load::<models::Device>(database)
+        .with_context(|_| "Error loading devices".to_string())?
+        .into_iter()
+        .next())
+}
+
+///Lookup a single available device from a pool
+pub fn get_available_device_from_pool(
+    _config: &utils::types::Settings,
+    database: &DbConn,
+    requested_pool_id: &i32,
+) -> Result<Option<models::Device>, failure::Error> {
+    Ok(devices
+        .filter(
+            pool_id
+                .eq(requested_pool_id)
+                .and(reservation_status.eq(models::ReservationStatus::Available)),
+        )
+        .load::<models::Device>(database)
+        .with_context(|_| "Error loading devices".to_string())?
+        .into_iter()
+        .next())
+}
+
 ///Updates a device, designed for the common case on the main http form
 pub fn update_device(
     _config: &utils::types::Settings,
@@ -79,6 +112,7 @@ pub fn edit_device(
         .set((
             device_name.eq(&device_edit.device_name),
             device_url.eq(&device_edit.device_url),
+            pool_id.eq(&device_edit.pool_id),
         ))
         .execute(database)?)
 }
@@ -101,4 +135,14 @@ pub fn insert_device(
     Ok(diesel::insert_into(devices::table)
         .values(device_insert)
         .execute(database)?)
+}
+
+///Get all the pools
+pub fn get_pools(
+    _config: &utils::types::Settings,
+    database: &DbConn,
+) -> Result<Vec<models::Pool>, failure::Error> {
+    Ok(pools
+        .load::<models::Pool>(database)
+        .with_context(|_| "Error loading pools".to_string())?)
 }

@@ -43,6 +43,66 @@ fn test_api_get_devices() {
 }
 
 #[test]
+fn test_api_delete_reservation() {
+    let file = tempfile::NamedTempFile::new().expect("creating tempfile");
+    let mut config = utils::types::Settings::new();
+    config.database_url = file.path().to_string_lossy().to_owned().to_string();
+
+    database::run_migrations(&config).expect("running migrations");
+    let rocket = routes::rocket(config).expect("creating rocket instance");
+    let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
+
+    /* TODO: Change this when the API for making reservations is ready. */
+    let response = client
+        .post("/devices")
+        .header(rocket::http::ContentType(rocket::http::MediaType::Form))
+        .body(r#"id=1&device_owner=Owner&comments=xyzzy&reservation_status=Available"#)
+        .dispatch();
+    let response = follow_redirect(&client, &response).unwrap();
+    assert_eq!(response.status(), rocket::http::Status::Ok);
+
+    let response = client.delete("/api/reservations/1").dispatch();
+    assert_eq!(response.status(), rocket::http::Status::NoContent);
+
+    /* Once a reservation has ended, you can't end it again. */
+    let response = client.delete("/api/reservations/1").dispatch();
+    assert_eq!(response.status(), rocket::http::Status::BadRequest);
+
+    let response = client.delete("/api/reservations/9000").dispatch();
+    assert_eq!(response.status(), rocket::http::Status::NotFound);
+}
+
+#[test]
+fn test_api_post_reservations() {
+    let file = tempfile::NamedTempFile::new().expect("creating tempfile");
+    let mut config = utils::types::Settings::new();
+    config.database_url = file.path().to_string_lossy().to_owned().to_string();
+
+    database::run_migrations(&config).expect("running migrations");
+    let rocket = routes::rocket(config).expect("creating rocket instance");
+    let client = rocket::local::Client::new(rocket).expect("valid rocket instance");
+
+    let mut response = client
+        .post("/api/reservations")
+        .header(rocket::http::ContentType::JSON)
+        .body(r#"{"device_owner":"Barry","comments":"test reservation","device":{"pool_id":1}}"#)
+        .dispatch();
+    assert_eq!(response.status(), rocket::http::Status::Ok);
+    let body = response.body_string().unwrap();
+    let v: serde_json::Value = serde_json::from_str(&body).unwrap();
+    assert_eq!(v["device_owner"], "Barry");
+    assert_eq!(v["comments"], "test reservation");
+    assert_eq!(v["device"]["reservation_status"], "Reserved");
+
+    let response = client
+        .post("/api/reservations")
+        .header(rocket::http::ContentType::JSON)
+        .body(r#"{"device_owner":"Barry","comments":"pool with no devices","device":{"pool_id":100}}"#)
+        .dispatch();
+    assert_eq!(response.status(), rocket::http::Status::NotFound);
+}
+
+#[test]
 fn test_html_get_devices() {
     let file = tempfile::NamedTempFile::new().expect("creating tempfile");
     let mut config = utils::types::Settings::new();
@@ -212,7 +272,7 @@ fn test_html_edit_devices() {
     let response = client
         .post("/editDevices")
         .header(rocket::http::ContentType(rocket::http::MediaType::Form))
-        .body(r#"id=1&device_name=testunit&device_url=http://testurl&save=SAVE"#)
+        .body(r#"id=1&device_name=testunit&device_url=http://testurl&pool_id=1&save=SAVE"#)
         .dispatch();
 
     let mut response = follow_redirect(&client, &response).unwrap();
@@ -307,7 +367,7 @@ fn test_html_add_devices() {
     let response = client
         .post("/addDevices")
         .header(rocket::http::ContentType(rocket::http::MediaType::Form))
-        .body(r#"device_name=testunit&device_url=http://testurl&add=ADD"#)
+        .body(r#"device_name=testunit&device_url=http://testurl&pool_id=1&add=ADD"#)
         .dispatch();
 
     let mut response = follow_redirect(&client, &response).unwrap();

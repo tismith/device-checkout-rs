@@ -27,27 +27,35 @@
 					<tr>
 						<th>Device name</th>
 						<th>URL</th>
+						<th>Device Pool</th>
 						<th>Owner</th>
 						<th>Comments</th>
 						<th>Last Changed</th>
 						<th></th>
 					</tr>
 				</thead>
-				{{#each devices}}
+				{{#each devices as |device|}}
 				<tr>
-					<td>{{this.device.device_name}}</td>
-					<td><a href="{{this.device.device_url}}">{{this.device.device_url}}</a></td>
-					<td><input type="text" name="device_owner" class="form-control" value="{{this.device.device_owner}}" form="reserve-{{this.device.id}}"></td>
-					<td><input type="text" name="comments" class="form-control" value="{{this.device.comments}}" form="reserve-{{this.device.id}}"></td>
-					<td>{{this.updated_at_local}}</td>
+					<td>{{device.device.device_name}}</td>
+					<td><a href="{{device.device.device_url}}">{{device.device.device_url}}</a></td>
 					<td>
-						<form id="reserve-{{this.device.id}}" name="reserve-{{this.device.id}}" action="/devices" method="post">
-							<input type="hidden" name="id" value="{{this.device.id}}" class="form-control" form="reserve-{{this.device.id}}">
-							<input type="hidden" name="reservation_status" value="{{this.device.reservation_status}}" class="form-control" form="reserve-{{this.device.id}}">
-							{{#if this.is_reserved}}
-							<input type="submit" class="btn btn-danger" value="RETURN" form="reserve-{{this.device.id}}">
+					{{#each ../pools as |pool|}}
+						{{#if (eq pool.id device.device.pool_id)}}
+							{{pool.pool_name}}
+						{{/if}}
+					{{/each}}
+					</td>
+					<td><input type="text" name="device_owner" class="form-control" value="{{device.device.device_owner}}" form="reserve-{{device.device.id}}"></td>
+					<td><input type="text" name="comments" class="form-control" value="{{device.device.comments}}" form="reserve-{{device.device.id}}"></td>
+					<td>{{device.updated_at_local}}</td>
+					<td>
+						<form id="reserve-{{device.device.id}}" name="reserve-{{device.device.id}}" action="/devices" method="post">
+							<input type="hidden" name="id" value="{{device.device.id}}" class="form-control" form="reserve-{{device.device.id}}">
+							<input type="hidden" name="reservation_status" value="{{device.device.reservation_status}}" class="form-control" form="reserve-{{device.device.id}}">
+							{{#if device.is_reserved}}
+							<input type="submit" class="btn btn-danger" value="RETURN" form="reserve-{{device.device.id}}">
 							{{else}}
-							<input type="submit" class="btn btn-primary" value="CLAIM" form="reserve-{{this.device.id}}">
+							<input type="submit" class="btn btn-primary" value="CLAIM" form="reserve-{{device.device.id}}">
 							{{/if}}
 						</form>
 					</td>

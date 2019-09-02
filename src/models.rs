@@ -1,6 +1,6 @@
 use chrono;
 use rocket;
-use schema::devices;
+use schema::*;
 use std;
 use validator::{Validate, ValidationError};
 
@@ -43,7 +43,21 @@ impl<'v> FromFormValue<'v> for ReservationStatus {
 }
 
 //deliberately not making this Copy
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Queryable, Serialize, Deserialize)]
+#[derive(
+    Debug,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Clone,
+    Hash,
+    Identifiable,
+    Queryable,
+    Associations,
+    Serialize,
+    Deserialize,
+)]
+#[belongs_to(Pool)]
 pub struct Device {
     pub id: i32,
     pub device_name: String,
@@ -57,6 +71,28 @@ pub struct Device {
     #[serde(default)]
     pub comments: Option<String>,
     pub reservation_status: ReservationStatus,
+    pub created_at: chrono::NaiveDateTime,
+    pub updated_at: chrono::NaiveDateTime,
+    pub pool_id: i32,
+}
+
+#[derive(
+    Debug,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Clone,
+    Hash,
+    Identifiable,
+    Queryable,
+    Insertable,
+    Serialize,
+    Deserialize,
+)]
+pub struct Pool {
+    pub id: i32,
+    pub pool_name: String,
     pub created_at: chrono::NaiveDateTime,
     pub updated_at: chrono::NaiveDateTime,
 }
@@ -74,7 +110,6 @@ pub struct Device {
     Default,
     Clone,
     Hash,
-    Queryable,
     Serialize,
     Deserialize,
     FromForm,
@@ -120,7 +155,6 @@ fn validate_device_checkout(device: &DeviceUpdate) -> Result<(), ValidationError
     Default,
     Clone,
     Hash,
-    Queryable,
     Serialize,
     Deserialize,
     FromForm,
@@ -132,6 +166,7 @@ pub struct DeviceEdit {
     pub device_name: String,
     #[validate(url(message = "URL was invalid"))]
     pub device_url: String,
+    pub pool_id: i32,
 }
 
 #[cfg_attr(
@@ -158,7 +193,6 @@ pub struct DeviceDelete {
     Default,
     Clone,
     Hash,
-    Queryable,
     Serialize,
     Deserialize,
     FromForm,
@@ -171,6 +205,38 @@ pub struct DeviceInsert {
     pub device_name: String,
     #[validate(url(message = "URL was invalid"))]
     pub device_url: String,
+    pub pool_id: i32,
+}
+
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Queryable, Serialize, Deserialize)]
+pub struct Reservation {
+    pub id: i32,
+    pub device_owner: String,
+    pub comments: Option<String>,
+    pub device: Device,
+}
+
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Serialize, Deserialize)]
+pub struct ReservationRequest {
+    pub device_owner: Option<String>,
+    pub comments: Option<String>,
+    pub device: ReservationRequestDevice,
+}
+
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Serialize, Deserialize)]
+pub struct ReservationRequestDevice {
+    pub id: Option<i32>,
+    pub device_name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default)]
+    pub device_url: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default)]
+    pub device_owner: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default)]
+    pub comments: Option<String>,
+    pub pool_id: i32,
 }
 
 #[cfg(test)]
@@ -197,6 +263,7 @@ mod test {
         let mut device = DeviceInsert {
             device_name: "".into(),
             device_url: "".into(),
+            pool_id: 0,
         };
         assert!(device.validate().is_err());
         device.device_name = "test".into();
@@ -212,6 +279,7 @@ mod test {
             id: 0,
             device_name: "".into(),
             device_url: "".into(),
+            pool_id: 0,
         };
         assert!(device.validate().is_err());
         device.device_name = "test".into();

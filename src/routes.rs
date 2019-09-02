@@ -26,7 +26,12 @@ pub fn html_routes() -> Vec<rocket::Route> {
 }
 
 pub fn api_routes() -> Vec<rocket::Route> {
-    routes![self::api_get_device, self::api_get_devices]
+    routes![
+        self::api_get_device,
+        self::api_get_devices,
+        self::api_post_reservations,
+        self::api_delete_reservation,
+    ]
 }
 
 #[get("/")]
@@ -72,6 +77,79 @@ pub fn api_get_devices(
     Ok(rocket_contrib::json::Json(devices))
 }
 
+#[cfg_attr(feature = "cargo-clippy", allow(needless_pass_by_value))]
+#[post("/reservations", format = "application/json", data = "<reservation>")]
+pub fn api_post_reservations(
+    config: rocket::State<utils::types::Settings>,
+    database: pool::DbConn,
+    reservation: rocket_contrib::json::Json<models::ReservationRequest>,
+) -> Result<rocket_contrib::json::Json<models::Reservation>, rocket::http::Status> {
+    trace!("api_post_reservations");
+    // Find an available device from the pool specified
+    let available_device =
+        database::get_available_device_from_pool(&*config, &*database, &reservation.device.pool_id)
+            .map_err(|_| rocket::http::Status::InternalServerError)
+            .and_then(|devices| devices.ok_or_else(|| rocket::http::Status::NotFound))?;
+    // Set the device as reserved
+    let update_reserved_device = models::DeviceUpdate {
+        id: available_device.id,
+        device_owner: reservation.device_owner.clone(),
+        comments: reservation.comments.clone(),
+        reservation_status: models::ReservationStatus::Reserved,
+    };
+    let updated_device = match database::update_device(
+        &*config,
+        &*database,
+        &update_reserved_device,
+        models::ReservationStatus::Available,
+    ) {
+        Ok(0) | Err(_) => Err(rocket::http::Status::InternalServerError),
+        _ => database::get_device(&*config, &*database, &available_device.device_name)
+            .map_err(|_| rocket::http::Status::InternalServerError)
+            .and_then(|devices| devices.ok_or_else(|| rocket::http::Status::NotFound)),
+    }?;
+    // Return a reservation response with the reserved device
+    let reservation_response = models::Reservation {
+        id: updated_device.id.clone(),
+        device: updated_device,
+        device_owner: reservation.device_owner.clone().unwrap(),
+        comments: reservation.comments.clone(),
+    };
+    Ok(rocket_contrib::json::Json(reservation_response))
+}
+
+#[delete("/reservations/<id>")]
+pub fn api_delete_reservation(
+    config: rocket::State<utils::types::Settings>,
+    database: pool::DbConn,
+    id: i32,
+) -> rocket::http::Status {
+    trace!("api_delete_reservation()");
+    /* For now the id of a reservation is the id of the device. */
+    if let Ok(None) = database::get_device_by_id(&*config, &*database, id) {
+        return rocket::http::Status::NotFound;
+    }
+
+    let device_update = models::DeviceUpdate {
+        id: id,
+        reservation_status: models::ReservationStatus::Available,
+        comments: None,
+        device_owner: None,
+    };
+    let update_result = database::update_device(
+        &*config,
+        &*database,
+        &device_update,
+        models::ReservationStatus::Reserved,
+    );
+
+    match update_result {
+        Ok(0) => rocket::http::Status::BadRequest,
+        Err(_) => rocket::http::Status::InternalServerError,
+        _ => rocket::http::Status::NoContent,
+    }
+}
+
 #[derive(Serialize)]
 struct PerDeviceContext {
     device: models::Device,
@@ -82,6 +160,7 @@ struct PerDeviceContext {
 #[derive(Serialize, Default)]
 struct DevicesContext<'a> {
     devices: Vec<PerDeviceContext>,
+    pools: Vec<models::Pool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     error_message: Option<&'a str>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -127,8 +206,11 @@ fn gen_device_context<'a>(
         .map(format_device)
         .collect();
 
+    let pools: Vec<_> = database::get_pools(config, database)?;
+
     Ok(DevicesContext {
         devices,
+        pools,
         error_message,
         success_message,
     })
